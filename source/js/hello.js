@@ -4,8 +4,9 @@ $(document).ready(function() {
 
   $.getJSON( "sampledata/lawrence_brem.json", function (data) {
     alert("json is read");
-    console.log(data);
+    console.log(data["proband"]);
   });
+
 
 
 });
