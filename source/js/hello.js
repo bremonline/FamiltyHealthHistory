@@ -3,7 +3,6 @@ $(document).ready(function() {
   console.log("document is ready");
 
   $.getJSON( "sampledata/lawrence_brem.json", function (data) {
-    alert("json is read");
     console.log(data["proband"]);
   });
 
