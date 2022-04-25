@@ -1,0 +1,33 @@
+{
+  "proband": "0beb2fc5-aae1-458d-a94a-4dab4e1b8ae1",
+  "people": [
+    {
+      "name":"Lawrence Brem",
+      "id":"0beb2fc5-aae1-458d-a94a-4dab4e1b8ae1",
+      "demographics": [{
+        "first_name":"Lawrence",
+        "last_name":"Brem",
+        "nickname":"Larry",
+        "middle_name":"Mark",
+        "age_in_years":53,
+        "weight_in_pounds":255,
+        "height_in_inches":69,
+        "birthdate_in_MM/DD/YYYY":"11/19/1968"
+      }],
+      "diseases": [{
+        "Pre-diabetes": [{
+          "ICD-10":"R73.01"
+        }],
+        "Myopia": [{
+          "ICD-10":"H52.01"
+        }]
+      }],
+      "relatives": [{
+        "mother":"216f5c83-ec39-49b5-96de-ff17202a1271",
+        "father":"0b029d11-87b1-4f14-80f2-b5f59c71d2c2"
+      }]
+    },
+    {"name":"Myrna Brem", "id":"216f5c83-ec39-49b5-96de-ff17202a1271", "diseases": ["Diabetes"]},
+    {"name":"Marshall Brem", "id":"0b029d11-87b1-4f14-80f2-b5f59c71d2c2"}
+  ]
+}
