@@ -10,7 +10,10 @@ $(document).ready(function() {
   var item = localStorage.getItem("fhh");
   console.log(item);
 
-  $.getJSON( "sampledata/lawrence_brem.json", function (d) {
+  element = $("#fhh");
+
+// Not needed since local storage is done now
+/*  $.getJSON( "sampledata/lawrence_brem.json", function (d) {
 
     data = d;
 
@@ -20,6 +23,7 @@ $(document).ready(function() {
     });
 
   });
+*/
 
   $("#simplified").click(function() {
     $("table.fhh").each(function() {
@@ -37,6 +41,21 @@ $(document).ready(function() {
     });
   });
 
+  $("#clear").click(function() {
+    data = [];
+    display_fhh(data["proband"], "simple");
+  });
+
+  $("#save").click(function() {
+    localStorage.setItem("fhh_data", JSON.stringify(data))
+  });
+
+  $("#load").click(function() {
+    data = JSON.parse(localStorage.getItem('fhh_data'));
+    display_fhh(data["proband"], "simple");
+  });
+
+
   $("#export").click(function() {
     exportJson(data, "fhh_export");
   });
@@ -45,10 +64,6 @@ $(document).ready(function() {
     $("#import_file").click();
   });
 
-  $("#clear").click(function() {
-    data = [];
-    display_fhh(data["proband"], "simple");
-  });
 
   $("#import_file").change(function(e) {
 
@@ -60,7 +75,7 @@ $(document).ready(function() {
       console.log(data);
       display_fhh(data["proband"], "simple");
     };
-    document.getElementById('import_file').value= null;
+    document.getElementById('import_file').value= null; // resets the value to allow reload
   });
 
 });
@@ -85,6 +100,7 @@ function display_fhh(id, view) {
   // $( element ).text( JSON.stringify(data["people"][id]) );
 
   add_header_to_fhh_table();
+  if (data == null || data["people"] == null) return; // Need a minimum in order to process at all
   console.log(data["people"][id]);
 
   var mother_id = data["people"][id]["mother"];
