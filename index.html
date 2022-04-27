@@ -1,18 +1,35 @@
 <head>
 <title>Family Health History Reference Implementation</title>
+
 <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="source/css/fhh.css">
+<script src="source/js/hello.js"></script>
 </head>
 
 <body>
+<input type="file" id="import_file" style="display:none"/>
 
-<script src="source/js/hello.js"></script>
+<TABLE class='navbar'>
+  <TR>
+    <TD id='import'>Import From File </TD>
+    <TD id='load'>Load</TD>
+    <TD id='save'>Save</TD>
+    <TD id='export'>Export to File</TD>
+    <TD id='clear'>Clear</TD>
+  </TR>
+</TABLE>
+<TABLE class='navbar'>
+  <TR><TD id='simplified'>Simplified View</TD><TD id='demographics'>Demographics View</TD><TD id='diseases'>Disease View</TD></TR>
+</TABLE>
 
-<textarea id="proband" name="proband" rows="5" cols="80">
-I think json will go here
-</textarea>
+<TABLE class='fhh'>
+  <TR> <TH class='h_left'> Name </TH> <TH class='h_center'> Relationship </TH> <TH class='h_center'> Edit </TH> <TH class='h_center'> Delete </TH> </TR>
+</TABLE>
 
-<div id="msgid">
-</div>
+
+
 
 </body>
 </html>
