@@ -2,9 +2,12 @@
 <title>Family Health History Reference Implementation</title>
 
 <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js" ></script>
 
 
 <link rel="stylesheet" href="source/css/fhh.css">
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+
 <script src="source/js/hello.js"></script>
 </head>
 
@@ -29,7 +32,63 @@
 </TABLE>
 
 
-
+<div id='demographics_dialog'>
+  <INPUT type='hidden' id='demographics_person_id' />
+  <TABLE>
+    <TR>
+      <TD> Name </TD>
+      <TD> <INPUT type='text' id='demographics_person_name' /> </TD>
+    </TR>
+    <TR>
+      <TD> Sex Assigned At Birth </TD>
+      <TD> <select id='demographics_person_gender'><option>&nbsp;</option><option>Male</option><option>Female</option></select> </TD>
+    </TR>
+    <TR>
+      <TD> Is this person still alive </TD>
+      <TD> <select id='demographics_alive'><option>&nbsp;</option><option>Yes</option><option>No</option></select>
+        <br /> <select id='demographics_age_style'><option>&nbsp;</option><option>Date of Birth (MM/DD/YYYY)</option><option>Age</option><option>Estimated Age</option><</select>
+        <INPUT type='text' id='demographics_person_birthdate'/>
+      </TD>
+    </TR>
+    <TR>
+      <TD> Was this person adopted </TD>
+      <TD> <select id='demographics_adopted'><option>&nbsp;</option><option>No</option><option>Yes</option></select> </TD>
+    </TR>
+    <TR>
+      <TD> Height </TD>
+      <TD>
+        <input type='text' id='demographics_height_in_feet' size='5'/> ft
+        <input type='text' id='demographics_height_in_inches'  size='5' /> in -or-
+        <input type='text' id='demographics_height_in_centimeters'  size='5' /> cm
+      </TD>
+    </TR>
+    <TR>
+      <TD> Weight </TD>
+      <TD>
+        <input type='text' id='demographics_weight'  size='5'>
+        <select id='demographics_weight_units'><option>&nbsp;</option><option>pounds</option><option>kilograms</option></select>
+      </TD>
+    </TR>
+    <TR>
+      <TD> Race </TD>
+      <TD>
+        <input type='checkbox' id='american_indian' /> American Indian or Alaska Native
+        <input type='checkbox' id='asian' /> Asian
+        <input type='checkbox' id='white' /> White <br />
+        <input type='checkbox' id='black' /> Black or African American
+        <input type='checkbox' id='pacific' /> Native Hawaiian or Other Pacific Islander <br />
+      </TD>
+    </TR>
+    <TR>
+      <TD> Ethnicity </TD>
+      <TD>
+        <input type='checkbox' id='hispanic' /> Hispanic or Latino
+        <input type='checkbox' id='not_hispanic' /> Not Hispanic or Latino
+        <input type='checkbox' id='jew' /> Ashkenazi Jewish
+      </TD>
+    </TR>
+  </TABLE>
+</div>
 
 </body>
 </html>

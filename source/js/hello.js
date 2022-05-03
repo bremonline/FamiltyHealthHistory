@@ -5,10 +5,26 @@ var element;
 $(document).ready(function() {
   // executes when HTML-Document is loaded and DOM is ready
 
+  $( "#demographics_dialog" ).dialog({
+    title: "Edit Demographics Information",
+    autoOpen: false,
+    minHeight: 400,
+    minWidth: 750,
+    maxHeight: 400,
+    maxWidth: 750,
+    model: true,
+    buttons: [
+      {text: "Cancel", click: function() {
+        $( this ).dialog( "close" );
+      }},
+      {text:"Submit", click: function() {
+        update_demographics();
+        $( this ).dialog( "close" );
+      }}
+    ]
+  });
+
   console.log("Starting ...");
-  localStorage.setItem("fhh", "TEST");
-  var item = localStorage.getItem("fhh");
-  console.log(item);
 
   element = $("#fhh");
 
@@ -64,7 +80,6 @@ $(document).ready(function() {
     $("#import_file").click();
   });
 
-
   $("#import_file").change(function(e) {
 
     var reader = new FileReader();
@@ -79,6 +94,20 @@ $(document).ready(function() {
   });
 
 });
+
+function edit_person(id) {
+  $( "#demographics_dialog" ).dialog("open");
+  console.log (data["people"]);
+  console.log (id);
+  $("#demographics_person_id").val(id);
+  $("#demographics_person_name").val(data["people"][id]["name"]);
+}
+
+function update_demographics() {
+  var id = $("#demographics_person_id").val();
+
+  alert ("Updating: " + id);
+}
 
 function exportJson(data, exportName){
   var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
@@ -223,12 +252,12 @@ function add_person_to_table (id, relationship, view, deleteable) {
     );
   }
   var trashicon = "&nbsp;";
-  if (deleteable) trashicon = "<IMG src='source/images/icon_trash.gif' />";
+  if (deleteable) trashicon = "<IMG src='source/images/icon_trash.gif' class='remove_person' />";
 
   element.append($("<TR>")
     .append( $("<TD class='person_name'>").append(infobox))
     .append( $("<TD class='relationship'>").append(relationship))
-    .append( $("<TD class='edit'>").append("<IMG src='source/images/icon_pencil.gif' />"))
+    .append( $("<TD class='edit'>").append("<IMG src='source/images/icon_pencil.gif' onclick='edit_person(\""+ id +"\");' \>"))
     .append( $("<TD class='trash'>").append(trashicon))
   );
 }
