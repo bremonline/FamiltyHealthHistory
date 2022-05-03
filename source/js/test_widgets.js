@@ -1,7 +1,19 @@
 
+var data = [];
+
 $(document).ready(function() {
   // executes when HTML-Document is loaded and DOM is ready
+  $.getJSON( "sampledata/lawrence_brem.json", function (d) {
+    data = d;
 
+    $(".fhh_card").card({
+      view:"complex"
+    });
+    $(".fhh_card").each(function(i) {
+      var person_id = $(this).attr("person_id");
+      $(this).card("data", data["people"][person_id])
+    });
+  });/*
   $("#fhh_card").card({
     data:
     {
@@ -36,7 +48,7 @@ $(document).ready(function() {
     },
     view:"complex"}
   );
-
+*/
 
 //  $("#fhh_card").card();
 

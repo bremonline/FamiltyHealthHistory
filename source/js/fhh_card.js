@@ -8,9 +8,7 @@
       data:[],
       view:"simple"
     },
-
-    _create: function() {
-      console.log (this.options.data);
+    _display_element : function () {
       var d = this.options.data;
       if (this.options.view == "simple") this.element.text(d["name"]);
       else {
@@ -23,94 +21,72 @@
       this.element.css("padding", "5px");
       this.element.css("vertical-align", "top");
     },
-
+    _create: function() {
+      this._display_element();
+    },
+    data: function (d) {
+      this.options.data = d;
+      this._display_element();
+    }
   });
 }( jQuery ));
 
-function get_picture_box(d) {
+function get_demographics_value(d, key) {
+  if (!d) return null;
   var demographics = d["demographics"];
+  if (demographics == null) return null;
+  return demographics[key];
+
+}
+
+function get_name(d) {
+  if (!d) return "Unknown";
+  var name = d["name"];
+  if (name == null) return "Unknown";
+  return name;
+}
+
+function get_picture_box(d) {
   var icon = "source/images/icon_male.png";
-  if (demographics != null) {
-    gender = demographics["gender"];
-    if (gender != null && gender == 'female' || gender == 'F') icon = "source/images/icon_female.png";
-  }
+  gender = get_demographics_value(d,"gender");
+  if (gender && gender == 'female' || gender == 'F') icon = "source/images/icon_female.png";
   var picture_box = $("<SPAN><IMG src=" + icon + " height='64' alt='silhouette' /></SPAN>");
   return picture_box;
 }
 
 function get_name_height_weight_box (d) {
   var name = get_name(d);
-  var gender = get_gender(d);
-  var height = get_height(d);
-  var weight = get_weight(d);
-  var box = $("<SPAN><B>" + name + "</B><BR/>" + gender + "<BR/>"+ height + "<BR/>" + weight + "</SPAN>");
+  var gender = get_demographics_value(d, "gender");
+  if (!gender) gender = "&nbsp;"
+  var height = get_demographics_value(d, "height_in_inches");
+  var height_str = "&nbsp;";
+  if (height) height_str = Math.floor(height/12) + " feet " + (height%12)+ " inches";
+  var weight = get_demographics_value(d, "weight_in_pounds");
+  var weight_str = "&nbsp;";
+  if (weight) weight_str = weight + " pounds";
+
+  var box = $("<SPAN><B>" + name + "</B><BR/>" + gender + "<BR/>"+ height_str + "<BR/>" + weight_str + "</SPAN>");
   box.css("display","inline-block");
   return box;
 }
-function get_name(d) {
-  var name = d["name"];
-  if (name == null) return "Unknown";
-  return name;
-}
-function get_gender (d) {
-  var demographics = d["demographics"];
-  if (demographics == null) return "&nbsp;";
-  return demographics["gender"];
-
-}
-function get_height(d) {
-  var demographics = d["demographics"];
-  if (demographics == null) return "&nbsp;";
-  var height = demographics["height_in_inches"];
-  if (height == null) height = ""; else height += " inches";
-  return height;
-}
-function get_weight(d) {
-  var demographics = d["demographics"];
-  if (demographics == null) return "&nbsp;";
-  var weight = demographics["weight_in_pounds"];
-  if (weight == null) weight = ""; else weight += " pounds";
-  return weight;
-}
 
 function get_race_ethnicity_age_box(d) {
-  var birthdate_age = get_birthdate_and_age(d);
-  var race = get_race(d);
-  var ethnicity = get_ethnicity(d);
+  var birthdate = get_demographics_value(d, "birthdate_in_MM/DD/YYYY");
+  var age = get_demographics_value(d, "age_in_years");
 
-  var demographics = d["demographics"];
-  if (demographics == null) return "&nbsp;";
+  var birthdate_age = "&nbsp;";
+  if (birthdate && age) birthdate_age = birthdate + " (" + age + " years)";
+  else if (birthdate && !age) birthdate_age = birthdate;
+  else if (!birthdate && age) birthdate_age = age + " years";
+  else birthdate_age = "&nbsp;";
+
+  var race = get_demographics_value(d, "race");
+  if (!race) race = "&nbsp;"
+  var ethnicity = get_demographics_value(d, "ethnicity");
+  if (!ethnicity) ethnicity = "&nbsp;"
 
   var box = $("<SPAN><br/>" + birthdate_age + "<BR/>" + race + "<BR/>"+ ethnicity + "</SPAN>");
   box.css("display","inline-block");
   return box;
 
-}
-function get_birthdate_and_age(d) {
-  var demographics = d["demographics"];
-  if (demographics == null) return "&nbsp;";
-
-  var birthdate = demographics["birthdate_in_MM/DD/YYYY"];
-  var age = demographics["age_in_years"];
-  var age_display;
-  if (birthdate == null && age == null) age_display = "&nbsp;";
-  else if (birthdate == null) age_display = age + "years";
-  else if (age == null) age_display = birthdate;
-  else age_display = birthdate + " (" + age + " years old)";
-
-  return age_display;
-}
-function get_race(d) {
-  var demographics = d["demographics"];
-  if (demographics == null) return "&nbsp;";
-  var race  = demographics["race"];
-  if (race == null) race = "";
-  return race;
-}
-function get_ethnicity(d) {
-  var demographics = d["demographics"];
-  if (demographics == null) return "&nbsp;";
-  var ethnicity  = demographics["ethnicity"];
-  if (ethnicity == null) ethnicity = "";
-  return ethnicity;
 }
