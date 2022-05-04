@@ -5,7 +5,7 @@ $(document).ready(function() {
   // executes when HTML-Document is loaded and DOM is ready
   $.getJSON( "sampledata/lawrence_brem.json", function (d) {
     data = d;
-
+    console.log(d);
     var proband = d["proband"];
 
     // Make Proband
