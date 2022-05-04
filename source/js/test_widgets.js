@@ -6,50 +6,61 @@ $(document).ready(function() {
   $.getJSON( "sampledata/lawrence_brem.json", function (d) {
     data = d;
 
+    var proband = d["proband"];
+
+    // Make Proband
+    var proband_div = $("<div></div>").addClass("fhh_card").attr("person_id", proband);
+    $("#fhh_data").append(proband_div);
+
+    var father_id = d["people"][proband]["father"];
+    var father_div = $("<div></div>").addClass("fhh_card").attr("person_id", father_id);
+    $("#fhh_data").append(father_div);
+
+    var mother_id = d["people"][proband]["mother"];
+    var mother_div = $("<div></div>").addClass("fhh_card").attr("person_id", mother_id);
+    $("#fhh_data").append(mother_div);
+
+    var children = d["people"][proband]["children"];
+    children.forEach(function(person_id) {
+      console.log(person_id);
+      var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id);
+      $("#fhh_data").append(person_div);
+    });
+
+    var full_siblings = get_full_siblings(d, proband, father_id, mother_id);
+    full_siblings.forEach(function(person_id) {
+      console.log(person_id);
+      var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id);
+      $("#fhh_data").append(person_div);
+    });
+
+
     $(".fhh_card").card({
       view:"complex"
     });
     $(".fhh_card").each(function(i) {
       var person_id = $(this).attr("person_id");
-      $(this).card("data", data["people"][person_id])
+      $(this).card("data", data["people"][person_id]);
     });
-  });/*
-  $("#fhh_card").card({
-    data:
-    {
-      "name":"Lawrence Brem",
-      "demographics": {
-        "first_name":"Lawrence",
-        "nickname":"Larry",
-        "middle_name":"Mark",
-        "last_name":"Brem",
-        "gender": "male",
-        "age_in_years":53,
-        "weight_in_pounds":225,
-        "height_in_inches":69,
-        "birthdate_in_MM/DD/YYYY":"11/19/1968",
-        "race" : "White",
-        "ethnicity" : "Non-Hispanic"
-      },
-      "diseases": [{
-        "Pre-diabetes": [{
-        "age_of_diagnosis": 51,
-        "concept_codes": {"ICD-10":"R73.01"}
-      }],
-        "Myopia": [{
-        "age_of_diagnosis": 14
-        }]
-      }],
-      "mother":"216f5c83-ec39-49b5-96de-ff17202a1271",
-      "father":"0b029d11-87b1-4f14-80f2-b5f59c71d2c2",
-      "children": [
-      "941a6910-efc2-4858-b532-eeead065817d", "ad3501c5-1218-404d-b8a7-21350fab94bb"
-      ]
-    },
-    view:"complex"}
-  );
-*/
-
-//  $("#fhh_card").card();
+  });
 
 });
+
+function get_full_siblings(d, proband_id, father_id, mother_id) {
+  var fathers_children = [];
+  var mothers_children = [];
+
+  if (d["people"][father_id] && d["people"][father_id]["children"])
+    fathers_children = data["people"][father_id]["children"];
+  if (d["people"][mother_id] != null && d["people"][mother_id]["children"] != null)
+    mothers_children = data["people"][mother_id]["children"];
+
+  var common = $(fathers_children).filter(mothers_children);
+
+  var siblings = [];
+  $.each(common, function(i,v) {
+    if (v != proband_id) siblings.push(v);
+  });
+  console.log (siblings);
+  return (siblings);
+}

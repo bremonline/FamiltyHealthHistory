@@ -17,9 +17,6 @@
         var race_ethnicity_age_box = get_race_ethnicity_age_box(d);
         this.element.empty().append(picture_box).append(name_height_weight_box).append(race_ethnicity_age_box);
       }
-      this.element.css("border", "2px solid black");
-      this.element.css("padding", "5px");
-      this.element.css("vertical-align", "top");
     },
     _create: function() {
       this._display_element();
