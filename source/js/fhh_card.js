@@ -15,7 +15,13 @@
         var picture_box = get_picture_box(d);
         var name_height_weight_box = get_name_height_weight_box(d);
         var race_ethnicity_age_box = get_race_ethnicity_age_box(d);
-        this.element.empty().append(picture_box).append(name_height_weight_box).append(race_ethnicity_age_box);
+        var edit_remove_box = get_edit_remove_box(d);
+
+        this.element.empty()
+          .append(picture_box)
+          .append(name_height_weight_box)
+          .append(race_ethnicity_age_box)
+          .append(edit_remove_box);
       }
     },
     _create: function() {
@@ -47,7 +53,8 @@ function get_picture_box(d) {
   var icon = "source/images/icon_male.png";
   gender = get_demographics_value(d,"gender");
   if (gender && gender == 'female' || gender == 'F') icon = "source/images/icon_female.png";
-  var picture_box = $("<SPAN><IMG src=" + icon + " height='64' alt='silhouette' /></SPAN>");
+  var picture_box = $("<DIV><IMG src=" + icon + " height='64' alt='silhouette' /></DIV>");
+  picture_box.css("display","inline-block");
   return picture_box;
 }
 
@@ -62,8 +69,9 @@ function get_name_height_weight_box (d) {
   var weight_str = "&nbsp;";
   if (weight) weight_str = weight + " pounds";
 
-  var box = $("<SPAN><B>" + name + "</B><BR/>" + gender + "<BR/>"+ height_str + "<BR/>" + weight_str + "</SPAN>");
+  var box = $("<DIV><B>" + name + "</B><BR/>" + gender + "<BR/>"+ height_str + "<BR/>" + weight_str + "</DIV>");
   box.css("display","inline-block");
+  box.css("flex-grow","3");
   return box;
 }
 
@@ -82,8 +90,19 @@ function get_race_ethnicity_age_box(d) {
   var ethnicity = get_demographics_value(d, "ethnicity");
   if (!ethnicity) ethnicity = "&nbsp;"
 
-  var box = $("<SPAN><br/>" + birthdate_age + "<BR/>" + race + "<BR/>"+ ethnicity + "</SPAN>");
+  var box = $("<DIV><br/>" + birthdate_age + "<BR/>" + race + "<BR/>"+ ethnicity + "</DIV>");
   box.css("display","inline-block");
+  box.css("flex-grow","2");
   return box;
 
+}
+
+function get_edit_remove_box(d) {
+  var box = $("<DIV><IMG src='source/images/icon_pencil.gif' /><br/><IMG src='source/images/icon_trash.gif' /></DIV>");
+  box.css("display","inline-block");
+  box.css("vertical-align", "center")
+  box.css("flex-grow","1");
+  box.css("text-align","right");
+  box.css("padding","10px");
+  return box;
 }
