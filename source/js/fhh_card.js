@@ -98,11 +98,22 @@ function get_race_ethnicity_age_box(d) {
 }
 
 function get_edit_remove_box(d) {
-  var box = $("<DIV><IMG src='source/images/icon_pencil.gif' /><br/><IMG src='source/images/icon_trash.gif' /></DIV>");
+  var edit_image_element = $("<IMG class='edit' src='source/images/icon_pencil.gif' />");
+  var trash_image_element = $("<IMG class='trash' src='source/images/icon_trash.gif' />");
+
+  edit_image_element.click(click_edit);
+  edit_image_element.css("cursor","pointer");
+  
+  var box = $("<DIV></DIV>");
+  box.append(edit_image_element).append("<br/>").append(trash_image_element);
   box.css("display","inline-block");
   box.css("vertical-align", "center")
   box.css("flex-grow","1");
   box.css("text-align","right");
   box.css("padding","10px");
   return box;
+}
+
+function click_edit() {
+  alert("Here");
 }
