@@ -118,6 +118,7 @@ function click_edit(event) {
   var d = $("<div></div>");
   d.dialog({
     modal:true,
+    position: {my:"center top", at:"center top"},
     buttons: [
       {
         text: "Cancel", click: function() {
