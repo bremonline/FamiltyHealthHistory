@@ -117,6 +117,7 @@ function get_edit_remove_box(d) {
 function click_edit(event) {
   var d = $("<div></div>");
   d.dialog({
+    modal:true,
     buttons: [
       {
         text: "Cancel", click: function() {
@@ -135,17 +136,23 @@ function click_edit(event) {
 
 
   // Setting the Full Name in the Dialog
+  var full_name = "";
+  if (data["name"]) full_name = data["name"];
   var full_name_label = $("<LABEL for='d_fullname'>Full Name</LABEL>");
   var full_name_input = $("<INPUT type='text' id='d_fullname'></INPUT>");
-  full_name_input.val(data["name"]);
+  full_name_input.val(full_name);
   t.append("<TR>")
     .append($("<TD>").append(full_name_label))
     .append($("<TD>").append(full_name_input));
 
     // Setting the Gender pulldown in the dialog
+  var gender = "";
+  if (data["demographics"] && data["demographics"]["gender"]) gender = data["demographics"]["gender"];
+
   var gender_label = $("<LABEL for='d_gender'>Gender at Birth</LABEL>");
-  var gender_input = $("<SELECT><OPTION>Male</OPTION><OPTION>Female</OPTION></SELECT>");
-  gender_input.val("Female");
+  var gender_input = $("<SELECT><OPTION></OPTION><OPTION>Unknown</OPTION><OPTION>Male</OPTION><OPTION>Female</OPTION></SELECT>");
+  console.log(gender);
+  gender_input.val(gender);
   t.append("<TR>")
     .append($("<TD>").append(gender_label))
     .append($("<TD>").append(gender_input));
