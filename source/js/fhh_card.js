@@ -101,9 +101,9 @@ function get_edit_remove_box(d) {
   var edit_image_element = $("<IMG class='edit' src='source/images/icon_pencil.gif' />");
   var trash_image_element = $("<IMG class='trash' src='source/images/icon_trash.gif' />");
 
-  edit_image_element.click(click_edit);
+  edit_image_element.click({data:d} , click_edit);
   edit_image_element.css("cursor","pointer");
-  
+
   var box = $("<DIV></DIV>");
   box.append(edit_image_element).append("<br/>").append(trash_image_element);
   box.css("display","inline-block");
@@ -114,6 +114,30 @@ function get_edit_remove_box(d) {
   return box;
 }
 
-function click_edit() {
-  alert("Here");
+function click_edit(event) {
+  var d = $("<div></div>");
+  d.dialog({
+    buttons: [
+      {
+        text: "Cancel", click: function() {
+          $( this ).dialog( "close" );
+        }
+      }, {
+        text: "Submit", click: function() {
+          $( this ).dialog( "close" );
+        }
+      }
+    ]
+  });
+  var data = event.data.data;
+
+  var t = $("<TABLE>");
+  var full_name_label = $("<LABEL for='d_fullname'>Full Name</LABEL>");
+  var full_name_input = $("<INPUT type='text' id='d_fullname'></INPUT>");
+  full_name_input.val(data["name"]);
+
+  t.append("<TR>")
+    .append($("<TD>").append(full_name_label))
+    .append($("<TD>").append(full_name_input));
+  d.append(t);
 }
