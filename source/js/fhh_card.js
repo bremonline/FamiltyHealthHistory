@@ -75,9 +75,11 @@ function get_name_height_weight_box (d) {
   var height_str = "&nbsp;";
   if (height_in_inches) height_str = Math.floor(height_in_inches/12) + " feet " + (height_in_inches%12)+ " inches";
   else if (height_in_cm) height_str = height_in_cm + " cm";
-  var weight = get_demographics_value(d, "weight_in_pounds");
+  var weight_in_pounds = get_demographics_value(d, "weight_in_pounds");
+  var weight_in_kilograms = get_demographics_value(d, "weight_in_kilograms");
   var weight_str = "&nbsp;";
-  if (weight) weight_str = weight + " pounds";
+  if (weight_in_pounds) weight_str = weight_in_pounds + " pounds";
+  else if (weight_in_kilograms) weight_str = weight_in_kilograms + " kilograms";
 
   var box = $("<DIV><B>" + name + "</B><BR/>" + gender + "<BR/>"+ height_str + "<BR/>" + weight_str + "</DIV>");
   box.css("display","inline-block");
@@ -86,13 +88,14 @@ function get_name_height_weight_box (d) {
 }
 
 function get_race_ethnicity_age_box(d) {
-  var birthdate = get_demographics_value(d, "birthdate_in_MM/DD/YYYY");
-  var age = get_demographics_value(d, "age_in_years");
+  var birthdate = get_demographics_value(d, "birthdate");
+  var age = get_demographics_value(d, "age");
+  var estimated_age = get_demographics_value(d, "estimated_age");
 
   var birthdate_age = "&nbsp;";
-  if (birthdate && age) birthdate_age = birthdate + " (" + age + " years)";
-  else if (birthdate && !age) birthdate_age = birthdate;
-  else if (!birthdate && age) birthdate_age = age + " years";
+  if (birthdate) birthdate_age = birthdate;
+  else if (age) birthdate_age = age + " years";
+  else if (estimated_age) birthdate_age = estimated_age;
   else birthdate_age = "&nbsp;";
 
   var race = get_demographics_value(d, "race");
@@ -133,10 +136,12 @@ function click_edit(event) {
       {
         text: "Cancel", click: function() {
           $( this ).dialog( "close" );
+          d.remove();
         }
       }, {
         text: "Submit", click: function() {
           $( this ).dialog( "close" );
+          d.remove();
         }
       }
     ]
@@ -162,7 +167,6 @@ function click_edit(event) {
 
   var gender_label = $("<LABEL for='d_gender'>Gender at Birth</LABEL>");
   var gender_input = $("<SELECT><OPTION></OPTION><OPTION>Unknown</OPTION><OPTION>Male</OPTION><OPTION>Female</OPTION></SELECT>");
-  console.log(gender);
   gender_input.val(gender);
   t.append("<TR>")
     .append($("<TD>").append(gender_label))
@@ -173,7 +177,6 @@ function click_edit(event) {
     if (data["demographics"] && data["demographics"]["height_in_inches"]) height_in_inches = data["demographics"]["height_in_inches"];
     var height_in_cm = "";
     if (data["demographics"] && data["demographics"]["height_in_cm"]) height_in_cm = data["demographics"]["height_in_cm"];
-    var height_label = $("<LABEL for='d_height'>Height</LABEL>");
 
     var height_label = $("<LABEL for='d_height'>Height</LABEL>");
     var height_in_feet_inches = $("<DIV>")
@@ -202,6 +205,109 @@ function click_edit(event) {
       .append($("<TD>").append(height_label))
       .append($("<TD>").append(height_input));
 
+    // Setting the weight in the dialog
+    var weight_in_pounds = "";
+    var weight_in_kilograms = "";
+    if (data["demographics"] && data["demographics"]["weight_in_pounds"]) weight_in_pounds = data["demographics"]["weight_in_pounds"];
+    if (data["demographics"] && data["demographics"]["weight_in_kilograms"]) weight_in_kilograms = data["demographics"]["weight_in_kilograms"];
+
+    var weight_label = $("<LABEL for='d_weight'>Weight</LABEL>");
+    var weight_input = $("<INPUT type='text' id='d_weight' size='5'></INPUT>");
+    var weight_units = $("<SELECT><OPTION></OPTION><OPTION>Pounds</OPTION><OPTION>Kilograms</OPTION></SELECT>");
+    var weight_input_div = $("<DIV>").append(weight_input).append(" ").append(weight_units);
+
+    if (weight_in_pounds) {
+      weight_input.val(weight_in_pounds);
+      weight_units.val("Pounds");
+    } else if (weight_in_kilograms) {
+      weight_input.val(weight_in_kilograms);
+      weight_units.val("Kilograms");
+    }
+
+    t.append("<TR>")
+      .append($("<TD>").append(weight_label))
+      .append($("<TD>").append(weight_input_div));
+
+    // setting the age in the Dialog
+    var age_type = $("<SELECT id='d_age_type'><OPTION></OPTION><OPTION>Birthdate</OPTION><OPTION>Age</OPTION><OPTION>Est. Age</OPTION></SELECT>");
+    var age_input = $("<INPUT type='text' id='d_age' size='3'></INPUT>")
+    var age_input_div = $("<DIV id='d_age_input_div'>").append(age_input).append(" years").hide();
+    var birthdate_input = $("<INPUT type='text' id='d_birthdate' size='10'></INPUT>").hide();
+    birthdate_input.datepicker({changeMonth:true, changeYear:true, yearRange:"-120:+1"});
+
+    var estimated_age_input = $("<SELECT id = 'd_estimated_age'>")
+      .append("<OPTION></OPTION>")
+      .append("<OPTION>Unknown</OPTION>")
+      .append("<OPTION>Pre-Birth</OPTION>")
+      .append("<OPTION>Newborn</OPTION>")
+      .append("<OPTION>In Infancy</OPTION>")
+      .append("<OPTION>In Childhood</OPTION>")
+      .append("<OPTION>20-29 Years</OPTION>")
+      .append("<OPTION>30-39 Years</OPTION>")
+      .append("<OPTION>40-49 Years</OPTION>")
+      .append("<OPTION>50-59 Years</OPTION>")
+      .append("<OPTION>60 Years or older</OPTION>")
+      .hide();
+
+    var age_div = $("<DIV id='d_age_div'>");
+    age_div.append(age_input_div).append(birthdate_input).append(estimated_age_input);
+
+    t.append("<TR>")
+      .append($("<TD>").append(age_type))
+      .append($("<TD>").append(age_div));
+
+
+
+    var age = "";
+    var birthdate = "";
+    var estimated_age = "";
+    if (data["demographics"] && data["demographics"]["age"]) age = data["demographics"]["age"];
+    if (data["demographics"] && data["demographics"]["birthdate"]) birthdate = data["demographics"]["birthdate"];
+    if (data["demographics"] && data["demographics"]["estimated_age"]) estimated_age = data["demographics"]["estimated_age"];
+
+
+    if (age) {
+      age_input_div.show();
+      birthdate_input.hide();
+      estimated_age_input.hide();
+      age_input.val(age)
+      age_type.val("Age");
+    } else if (birthdate) {
+      age_input_div.hide();
+      birthdate_input.show();
+      estimated_age_input.hide();
+      birthdate_input.val(birthdate);
+      age_type.val("Birthdate");
+    } else if (estimated_age) {
+      age_input_div.hide();
+      birthdate_input.hide();
+      estimated_age_input.show();
+      estimated_age_input.val(estimated_age);
+      age_type.val("Est. Age");
+    }
 
   d.append(t);
+
+  age_type.change(change_age_type);
+}
+
+function change_age_type() {
+  var age_type = $("#d_age_type").val()
+  if (age_type && age_type == "Age") {
+    $("#d_age_input_div").show();
+    $("#d_birthdate").hide();
+    $("#d_estimated_age").hide();
+  } else if (age_type && age_type == "Birthdate") {
+      $("#d_age_input_div").hide();
+      $("#d_birthdate").show();
+      $("#d_estimated_age").hide();
+    } else if (age_type && age_type == "Est. Age") {
+      $("#d_age_input_div").hide();
+      $("#d_birthdate").hide();
+      $("#d_estimated_age").show();
+    } else {
+      $("#d_age_input_div").hide();
+      $("#d_birthdate").hide();
+      $("#d_estimated_age").hide();
+    }
 }
