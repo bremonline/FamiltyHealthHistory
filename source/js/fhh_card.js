@@ -132,12 +132,24 @@ function click_edit(event) {
   var data = event.data.data;
 
   var t = $("<TABLE>");
+
+
+  // Setting the Full Name in the Dialog
   var full_name_label = $("<LABEL for='d_fullname'>Full Name</LABEL>");
   var full_name_input = $("<INPUT type='text' id='d_fullname'></INPUT>");
   full_name_input.val(data["name"]);
-
   t.append("<TR>")
     .append($("<TD>").append(full_name_label))
     .append($("<TD>").append(full_name_input));
+
+    // Setting the Gender pulldown in the dialog
+  var gender_label = $("<LABEL for='d_gender'>Gender at Birth</LABEL>");
+  var gender_input = $("<SELECT><OPTION>Male</OPTION><OPTION>Female</OPTION></SELECT>");
+  gender_input.val("Female");
+  t.append("<TR>")
+    .append($("<TD>").append(gender_label))
+    .append($("<TD>").append(gender_input));
+
+
   d.append(t);
 }
