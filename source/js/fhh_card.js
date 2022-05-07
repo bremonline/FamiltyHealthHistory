@@ -158,6 +158,39 @@ function click_edit(event) {
     .append($("<TD>").append(gender_label))
     .append($("<TD>").append(gender_input));
 
+    // Setting the height in the dialog
+    var height_in_inches = "";
+    if (data["demographics"] && data["demographics"]["height_in_inches"]) height_in_inches = data["demographics"]["height_in_inches"];
+    var height_in_cm = "";
+    if (data["demographics"] && data["demographics"]["height_in_cm"]) height_in_cm = data["demographics"]["height_in_cm"];
+    var height_label = $("<LABEL for='d_height'>Height</LABEL>");
+
+    var height_label = $("<LABEL for='d_height'>Height</LABEL>");
+    var height_in_feet_inches = $("<DIV>")
+    var feet_input = $("<INPUT type='text' id='d_feet' size='3'></INPUT>");
+    var feet_label = $("<LABEL for='d_feet'> feet </LABEL>");
+    var inches_input = $("<INPUT type='text' id='d_inches' size='3'></INPUT>");
+    var inches_label = $("<LABEL for='d_inches'> inches </LABEL>");
+    var height_in_feet_inches = $("<DIV>").append(feet_input).append(feet_label).append(inches_input).append(inches_label);
+
+    var cm_input = $("<INPUT type='text' id='d_cm' size='5'></INPUT>");
+    var cm_label = $("<LABEL for='d_cm'> cm </LABEL>");
+    var height_in_cm = $("<DIV>").append(" - or - ").append(cm_input).append(cm_label);
+
+    var height_input = $("<DIV>").append(height_in_feet_inches).append(height_in_cm);
+    if (height_in_inches) {
+      var feet = Math.floor(height_in_inches/12);
+      var inches = height_in_inches % 12;
+      feet_input.val(feet);
+      inches_input.val(inches);
+    }
+    if (height_in_cm) {
+
+    }
+    t.append("<TR>")
+      .append($("<TD>").append(height_label))
+      .append($("<TD>").append(height_input));
+
 
   d.append(t);
 }
