@@ -41,7 +41,7 @@
       ]
     },
     "0b029d11-87b1-4f14-80f2-b5f59c71d2c2" : {"name":"Marshall Brem",
-      "demographics":{"gender":"Male"},
+      "demographics":{"gender":"Male", "height_in_cm":180},
       "children": [
       "8aa2e0a5-046d-4f1d-9dc1-bdd7557c41a5", "67780242-bb3f-4491-8e0e-2dd7d966b234",
       "0beb2fc5-aae1-458d-a94a-4dab4e1b8ae1", "7df67623-5d72-4d76-910e-1a63c5c282a2"

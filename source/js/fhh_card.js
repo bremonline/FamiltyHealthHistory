@@ -21,7 +21,7 @@
           .append(picture_box)
           .append(name_height_weight_box)
           .append(race_ethnicity_age_box)
-          .append(edit_remove_box);
+//          .append(edit_remove_box);
       }
     },
     _create: function() {
@@ -55,6 +55,14 @@ function get_picture_box(d) {
   if (gender && gender == 'female' || gender == 'F') icon = "source/images/icon_female.png";
   var picture_box = $("<DIV><IMG src=" + icon + " height='64' alt='silhouette' /></DIV>");
   picture_box.css("display","inline-block");
+  picture_box.css("text-align","center");
+
+  var edit_image_element = $("<IMG class='edit' src='source/images/icon_pencil.gif' />");
+  var trash_image_element = $("<IMG class='trash' src='source/images/icon_trash.gif' />");
+
+  edit_image_element.click({data:d} , click_edit);
+  edit_image_element.css("cursor","pointer");
+  picture_box.append("<br/>").append(edit_image_element).append(trash_image_element);
   return picture_box;
 }
 
@@ -62,9 +70,11 @@ function get_name_height_weight_box (d) {
   var name = get_name(d);
   var gender = get_demographics_value(d, "gender");
   if (!gender) gender = "&nbsp;"
-  var height = get_demographics_value(d, "height_in_inches");
+  var height_in_inches = get_demographics_value(d, "height_in_inches");
+  var height_in_cm = get_demographics_value(d, "height_in_cm");
   var height_str = "&nbsp;";
-  if (height) height_str = Math.floor(height/12) + " feet " + (height%12)+ " inches";
+  if (height_in_inches) height_str = Math.floor(height_in_inches/12) + " feet " + (height_in_inches%12)+ " inches";
+  else if (height_in_cm) height_str = height_in_cm + " cm";
   var weight = get_demographics_value(d, "weight_in_pounds");
   var weight_str = "&nbsp;";
   if (weight) weight_str = weight + " pounds";
@@ -168,16 +178,16 @@ function click_edit(event) {
     var height_label = $("<LABEL for='d_height'>Height</LABEL>");
     var height_in_feet_inches = $("<DIV>")
     var feet_input = $("<INPUT type='text' id='d_feet' size='3'></INPUT>");
-    var feet_label = $("<LABEL for='d_feet'> feet </LABEL>");
+    var feet_label = $("<LABEL for='d_feet'> ft </LABEL>");
     var inches_input = $("<INPUT type='text' id='d_inches' size='3'></INPUT>");
-    var inches_label = $("<LABEL for='d_inches'> inches </LABEL>");
+    var inches_label = $("<LABEL for='d_inches'> in </LABEL>");
     var height_in_feet_inches = $("<DIV>").append(feet_input).append(feet_label).append(inches_input).append(inches_label);
 
     var cm_input = $("<INPUT type='text' id='d_cm' size='5'></INPUT>");
     var cm_label = $("<LABEL for='d_cm'> cm </LABEL>");
-    var height_in_cm = $("<DIV>").append(" - or - ").append(cm_input).append(cm_label);
+    var height_in_cm_input = $("<DIV>").append(" - or - ").append(cm_input).append(cm_label);
 
-    var height_input = $("<DIV>").append(height_in_feet_inches).append(height_in_cm);
+    var height_input = $("<DIV>").append(height_in_feet_inches).append(height_in_cm_input);
     if (height_in_inches) {
       var feet = Math.floor(height_in_inches/12);
       var inches = height_in_inches % 12;
@@ -185,7 +195,8 @@ function click_edit(event) {
       inches_input.val(inches);
     }
     if (height_in_cm) {
-
+      console.log(height_in_cm);
+      cm_input.val(height_in_cm);
     }
     t.append("<TR>")
       .append($("<TD>").append(height_label))
