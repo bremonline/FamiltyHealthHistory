@@ -1,9 +1,9 @@
 // This is the Family Health History Card Widget
 
 (function ( $ ) {
-  races = ["American Indian or Alaska Native", "Asian", "Black or African-American",
+  possible_races = ["American Indian or Alaska Native", "Asian", "Black or African-American",
         "Native Hawaiian or Other Pacific Islander", "White"];
-  ethnicities = ["Hispanic or Latino", "Not Hispanic or Latino", "Ashkenazi Jewish"];
+  possible_ethnicities = ["Hispanic or Latino", "Not Hispanic or Latino", "Ashkenazi Jewish"];
 
   $.widget("fhh.card",{
 
@@ -162,6 +162,7 @@ function click_edit(event) {
   set_weight_in_dialog(data, t);
   set_age_in_dialog(data, t);
   set_race_in_dialog(data, t, race_list);
+  set_ethnicity_in_dialog(data, t, race_list);
 
   d.append(t);
 
@@ -232,15 +233,15 @@ function set_weight_in_dialog(data, t) {
 
   var weight_label = $("<LABEL for='d_weight'>Weight</LABEL>");
   var weight_input = $("<INPUT type='text' id='d_weight' size='5'></INPUT>");
-  var weight_units = $("<SELECT><OPTION></OPTION><OPTION>Pounds</OPTION><OPTION>Kilograms</OPTION></SELECT>");
+  var weight_units = $("<SELECT><OPTION></OPTION><OPTION>lb</OPTION><OPTION>kg</OPTION></SELECT>");
   var weight_input_div = $("<DIV>").append(weight_input).append(" ").append(weight_units);
 
   if (weight_in_pounds) {
     weight_input.val(weight_in_pounds);
-    weight_units.val("Pounds");
+    weight_units.val("lb");
   } else if (weight_in_kilograms) {
     weight_input.val(weight_in_kilograms);
-    weight_units.val("Kilograms");
+    weight_units.val("kg");
   }
 
   t.append("<TR>")
@@ -331,22 +332,47 @@ function change_age_type() {
 }
 
 function set_race_in_dialog(data, t) {
-  var race = [];
-  if (data["demographics"] && data["demographics"]["race"]) race = data["demographics"]["race"];
+  var races = [];
+  if (data["demographics"] && data["demographics"]["races"]) races = data["demographics"]["races"];
 
+  console.log(possible_races);
   console.log(races);
-  console.log(race);
 
   var race_label = $("<LABEL for='d_race'>Race</LABEL>");
-  var race_input = $("<DIV style='font-size:x-small'>");
+  var race_input = $("<DIV style='font-size:small'>");
 
 
-  jQuery.each( races, function( i, v ) {
-    console.log(v);
-    race_input.append(v + "<br/>")
+  jQuery.each( possible_races, function( i, v ) {
+    check = races.includes(v)
+    console.log(v + ":" + check);
+    checkbox = $("<INPUT type='checkbox'></INPUT>").attr("id", v).attr("checked", check);
+    race_input.append(checkbox).append(v + "<br/>");
   });
 
   t.append("<TR>")
     .append($("<TD>").append(race_label))
     .append($("<TD>").append(race_input));
+}
+
+function set_ethnicity_in_dialog(data, t) {
+  var ethnicities = [];
+  if (data["demographics"] && data["demographics"]["ethnicities"]) ethnicities = data["demographics"]["ethnicities"];
+
+  console.log(possible_ethnicities);
+  console.log(ethnicities);
+
+  var ethnicity_label = $("<LABEL for='d_race'>Ethnicity</LABEL>");
+  var ethnicity_input = $("<DIV style='font-size:small'>");
+
+
+  jQuery.each( possible_ethnicities, function( i, v ) {
+    check = ethnicities.includes(v)
+    console.log(v + ":" + check);
+    checkbox = $("<INPUT type='checkbox'></INPUT>").attr("id", v).attr("checked", check);
+    ethnicity_input.append(checkbox).append(v + "<br/>");
+  });
+
+  t.append("<TR>")
+    .append($("<TD>").append(ethnicity_label))
+    .append($("<TD>").append(ethnicity_input));
 }
