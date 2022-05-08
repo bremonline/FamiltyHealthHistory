@@ -14,8 +14,8 @@
           "weight_in_pounds":225,
           "height_in_inches":69,
           "birthdate":"11/19/1968",
-          "race" : "White",
-          "ethnicity" : "Non-Hispanic"
+          "race" : ["White", "Black"],
+          "ethnicity" : ["Non-Hispanic"]
         },
         "diseases": [{
           "Pre-diabetes": [{

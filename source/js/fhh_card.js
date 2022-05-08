@@ -1,12 +1,16 @@
 // This is the Family Health History Card Widget
 
 (function ( $ ) {
+  races = ["American Indian or Alaska Native", "Asian", "Black or African-American",
+        "Native Hawaiian or Other Pacific Islander", "White"];
+  ethnicities = ["Hispanic or Latino", "Not Hispanic or Latino", "Ashkenazi Jewish"];
 
   $.widget("fhh.card",{
 
+
     options: {
       data:[],
-      view:"simple"
+      view:"simple",
     },
     _display_element : function () {
       var d = this.options.data;
@@ -147,11 +151,23 @@ function click_edit(event) {
     ]
   });
   var data = event.data.data;
+  var race_list = event;
+  console.log(race_list);
 
   var t = $("<TABLE>");
 
+  set_full_name_in_dialog(data, t);
+  set_gender_in_dialog(data, t);
+  set_height_id_dialog(data, t);
+  set_weight_in_dialog(data, t);
+  set_age_in_dialog(data, t);
+  set_race_in_dialog(data, t, race_list);
 
-  // Setting the Full Name in the Dialog
+  d.append(t);
+
+}
+
+function set_full_name_in_dialog(data, t) {
   var full_name = "";
   if (data["name"]) full_name = data["name"];
   var full_name_label = $("<LABEL for='d_fullname'>Full Name</LABEL>");
@@ -160,8 +176,9 @@ function click_edit(event) {
   t.append("<TR>")
     .append($("<TD>").append(full_name_label))
     .append($("<TD>").append(full_name_input));
+}
 
-    // Setting the Gender pulldown in the dialog
+function set_gender_in_dialog(data, t) {
   var gender = "";
   if (data["demographics"] && data["demographics"]["gender"]) gender = data["demographics"]["gender"];
 
@@ -171,124 +188,125 @@ function click_edit(event) {
   t.append("<TR>")
     .append($("<TD>").append(gender_label))
     .append($("<TD>").append(gender_input));
+}
 
-    // Setting the height in the dialog
-    var height_in_inches = "";
-    if (data["demographics"] && data["demographics"]["height_in_inches"]) height_in_inches = data["demographics"]["height_in_inches"];
-    var height_in_cm = "";
-    if (data["demographics"] && data["demographics"]["height_in_cm"]) height_in_cm = data["demographics"]["height_in_cm"];
+function set_height_id_dialog(data, t){
+  var height_in_inches = "";
+  if (data["demographics"] && data["demographics"]["height_in_inches"]) height_in_inches = data["demographics"]["height_in_inches"];
+  var height_in_cm = "";
+  if (data["demographics"] && data["demographics"]["height_in_cm"]) height_in_cm = data["demographics"]["height_in_cm"];
 
-    var height_label = $("<LABEL for='d_height'>Height</LABEL>");
-    var height_in_feet_inches = $("<DIV>")
-    var feet_input = $("<INPUT type='text' id='d_feet' size='3'></INPUT>");
-    var feet_label = $("<LABEL for='d_feet'> ft </LABEL>");
-    var inches_input = $("<INPUT type='text' id='d_inches' size='3'></INPUT>");
-    var inches_label = $("<LABEL for='d_inches'> in </LABEL>");
-    var height_in_feet_inches = $("<DIV>").append(feet_input).append(feet_label).append(inches_input).append(inches_label);
+  var height_label = $("<LABEL for='d_height'>Height</LABEL>");
+  var height_in_feet_inches = $("<DIV>")
+  var feet_input = $("<INPUT type='text' id='d_feet' size='3'></INPUT>");
+  var feet_label = $("<LABEL for='d_feet'> ft </LABEL>");
+  var inches_input = $("<INPUT type='text' id='d_inches' size='3'></INPUT>");
+  var inches_label = $("<LABEL for='d_inches'> in </LABEL>");
+  var height_in_feet_inches = $("<DIV>").append(feet_input).append(feet_label).append(inches_input).append(inches_label);
 
-    var cm_input = $("<INPUT type='text' id='d_cm' size='5'></INPUT>");
-    var cm_label = $("<LABEL for='d_cm'> cm </LABEL>");
-    var height_in_cm_input = $("<DIV>").append(" - or - ").append(cm_input).append(cm_label);
+  var cm_input = $("<INPUT type='text' id='d_cm' size='5'></INPUT>");
+  var cm_label = $("<LABEL for='d_cm'> cm </LABEL>");
+  var height_in_cm_input = $("<DIV>").append(" - or - ").append(cm_input).append(cm_label);
 
-    var height_input = $("<DIV>").append(height_in_feet_inches).append(height_in_cm_input);
-    if (height_in_inches) {
-      var feet = Math.floor(height_in_inches/12);
-      var inches = height_in_inches % 12;
-      feet_input.val(feet);
-      inches_input.val(inches);
-    }
-    if (height_in_cm) {
-      console.log(height_in_cm);
-      cm_input.val(height_in_cm);
-    }
-    t.append("<TR>")
-      .append($("<TD>").append(height_label))
-      .append($("<TD>").append(height_input));
+  var height_input = $("<DIV>").append(height_in_feet_inches).append(height_in_cm_input);
+  if (height_in_inches) {
+    var feet = Math.floor(height_in_inches/12);
+    var inches = height_in_inches % 12;
+    feet_input.val(feet);
+    inches_input.val(inches);
+  }
+  if (height_in_cm) {
+    console.log(height_in_cm);
+    cm_input.val(height_in_cm);
+  }
+  t.append("<TR>")
+    .append($("<TD>").append(height_label))
+    .append($("<TD>").append(height_input));
+}
 
-    // Setting the weight in the dialog
-    var weight_in_pounds = "";
-    var weight_in_kilograms = "";
-    if (data["demographics"] && data["demographics"]["weight_in_pounds"]) weight_in_pounds = data["demographics"]["weight_in_pounds"];
-    if (data["demographics"] && data["demographics"]["weight_in_kilograms"]) weight_in_kilograms = data["demographics"]["weight_in_kilograms"];
+function set_weight_in_dialog(data, t) {
+  var weight_in_pounds = "";
+  var weight_in_kilograms = "";
+  if (data["demographics"] && data["demographics"]["weight_in_pounds"]) weight_in_pounds = data["demographics"]["weight_in_pounds"];
+  if (data["demographics"] && data["demographics"]["weight_in_kilograms"]) weight_in_kilograms = data["demographics"]["weight_in_kilograms"];
 
-    var weight_label = $("<LABEL for='d_weight'>Weight</LABEL>");
-    var weight_input = $("<INPUT type='text' id='d_weight' size='5'></INPUT>");
-    var weight_units = $("<SELECT><OPTION></OPTION><OPTION>Pounds</OPTION><OPTION>Kilograms</OPTION></SELECT>");
-    var weight_input_div = $("<DIV>").append(weight_input).append(" ").append(weight_units);
+  var weight_label = $("<LABEL for='d_weight'>Weight</LABEL>");
+  var weight_input = $("<INPUT type='text' id='d_weight' size='5'></INPUT>");
+  var weight_units = $("<SELECT><OPTION></OPTION><OPTION>Pounds</OPTION><OPTION>Kilograms</OPTION></SELECT>");
+  var weight_input_div = $("<DIV>").append(weight_input).append(" ").append(weight_units);
 
-    if (weight_in_pounds) {
-      weight_input.val(weight_in_pounds);
-      weight_units.val("Pounds");
-    } else if (weight_in_kilograms) {
-      weight_input.val(weight_in_kilograms);
-      weight_units.val("Kilograms");
-    }
+  if (weight_in_pounds) {
+    weight_input.val(weight_in_pounds);
+    weight_units.val("Pounds");
+  } else if (weight_in_kilograms) {
+    weight_input.val(weight_in_kilograms);
+    weight_units.val("Kilograms");
+  }
 
-    t.append("<TR>")
-      .append($("<TD>").append(weight_label))
-      .append($("<TD>").append(weight_input_div));
+  t.append("<TR>")
+    .append($("<TD>").append(weight_label))
+    .append($("<TD>").append(weight_input_div));
+}
 
-    // setting the age in the Dialog
-    var age_type = $("<SELECT id='d_age_type'><OPTION></OPTION><OPTION>Birthdate</OPTION><OPTION>Age</OPTION><OPTION>Est. Age</OPTION></SELECT>");
-    var age_input = $("<INPUT type='text' id='d_age' size='3'></INPUT>")
-    var age_input_div = $("<DIV id='d_age_input_div'>").append(age_input).append(" years").hide();
-    var birthdate_input = $("<INPUT type='text' id='d_birthdate' size='10'></INPUT>").hide();
-    birthdate_input.datepicker({changeMonth:true, changeYear:true, yearRange:"-120:+1"});
+function set_age_in_dialog(data, t) {
+  var age_type = $("<SELECT id='d_age_type'><OPTION></OPTION><OPTION>Birthdate</OPTION><OPTION>Age</OPTION><OPTION>Est. Age</OPTION></SELECT>");
+  var age_input = $("<INPUT type='text' id='d_age' size='3'></INPUT>")
+  var age_input_div = $("<DIV id='d_age_input_div'>").append(age_input).append(" years").hide();
+  var birthdate_input = $("<INPUT type='text' id='d_birthdate' size='10'></INPUT>").hide();
+  birthdate_input.datepicker({changeMonth:true, changeYear:true, yearRange:"-120:+1"});
 
-    var estimated_age_input = $("<SELECT id = 'd_estimated_age'>")
-      .append("<OPTION></OPTION>")
-      .append("<OPTION>Unknown</OPTION>")
-      .append("<OPTION>Pre-Birth</OPTION>")
-      .append("<OPTION>Newborn</OPTION>")
-      .append("<OPTION>In Infancy</OPTION>")
-      .append("<OPTION>In Childhood</OPTION>")
-      .append("<OPTION>20-29 Years</OPTION>")
-      .append("<OPTION>30-39 Years</OPTION>")
-      .append("<OPTION>40-49 Years</OPTION>")
-      .append("<OPTION>50-59 Years</OPTION>")
-      .append("<OPTION>60 Years or older</OPTION>")
-      .hide();
+  var estimated_age_input = $("<SELECT id = 'd_estimated_age'>")
+    .append("<OPTION></OPTION>")
+    .append("<OPTION>Unknown</OPTION>")
+    .append("<OPTION>Pre-Birth</OPTION>")
+    .append("<OPTION>Newborn</OPTION>")
+    .append("<OPTION>In Infancy</OPTION>")
+    .append("<OPTION>In Childhood</OPTION>")
+    .append("<OPTION>20-29 Years</OPTION>")
+    .append("<OPTION>30-39 Years</OPTION>")
+    .append("<OPTION>40-49 Years</OPTION>")
+    .append("<OPTION>50-59 Years</OPTION>")
+    .append("<OPTION>60 Years or older</OPTION>")
+    .hide();
 
-    var age_div = $("<DIV id='d_age_div'>");
-    age_div.append(age_input_div).append(birthdate_input).append(estimated_age_input);
-
-    t.append("<TR>")
-      .append($("<TD>").append(age_type))
-      .append($("<TD>").append(age_div));
-
+  var age_div = $("<DIV id='d_age_div'>");
+  age_div.append(age_input_div).append(birthdate_input).append(estimated_age_input);
 
 
-    var age = "";
-    var birthdate = "";
-    var estimated_age = "";
-    if (data["demographics"] && data["demographics"]["age"]) age = data["demographics"]["age"];
-    if (data["demographics"] && data["demographics"]["birthdate"]) birthdate = data["demographics"]["birthdate"];
-    if (data["demographics"] && data["demographics"]["estimated_age"]) estimated_age = data["demographics"]["estimated_age"];
+
+  var age = "";
+  var birthdate = "";
+  var estimated_age = "";
+  if (data["demographics"] && data["demographics"]["age"]) age = data["demographics"]["age"];
+  if (data["demographics"] && data["demographics"]["birthdate"]) birthdate = data["demographics"]["birthdate"];
+  if (data["demographics"] && data["demographics"]["estimated_age"]) estimated_age = data["demographics"]["estimated_age"];
 
 
-    if (age) {
-      age_input_div.show();
-      birthdate_input.hide();
-      estimated_age_input.hide();
-      age_input.val(age)
-      age_type.val("Age");
-    } else if (birthdate) {
-      age_input_div.hide();
-      birthdate_input.show();
-      estimated_age_input.hide();
-      birthdate_input.val(birthdate);
-      age_type.val("Birthdate");
-    } else if (estimated_age) {
-      age_input_div.hide();
-      birthdate_input.hide();
-      estimated_age_input.show();
-      estimated_age_input.val(estimated_age);
-      age_type.val("Est. Age");
-    }
-
-  d.append(t);
+  if (age) {
+    age_input_div.show();
+    birthdate_input.hide();
+    estimated_age_input.hide();
+    age_input.val(age)
+    age_type.val("Age");
+  } else if (birthdate) {
+    age_input_div.hide();
+    birthdate_input.show();
+    estimated_age_input.hide();
+    birthdate_input.val(birthdate);
+    age_type.val("Birthdate");
+  } else if (estimated_age) {
+    age_input_div.hide();
+    birthdate_input.hide();
+    estimated_age_input.show();
+    estimated_age_input.val(estimated_age);
+    age_type.val("Est. Age");
+  }
 
   age_type.change(change_age_type);
+
+  t.append("<TR>")
+    .append($("<TD>").append(age_type))
+    .append($("<TD>").append(age_div));
 }
 
 function change_age_type() {
@@ -310,4 +328,25 @@ function change_age_type() {
       $("#d_birthdate").hide();
       $("#d_estimated_age").hide();
     }
+}
+
+function set_race_in_dialog(data, t) {
+  var race = [];
+  if (data["demographics"] && data["demographics"]["race"]) race = data["demographics"]["race"];
+
+  console.log(races);
+  console.log(race);
+
+  var race_label = $("<LABEL for='d_race'>Race</LABEL>");
+  var race_input = $("<DIV style='font-size:x-small'>");
+
+
+  jQuery.each( races, function( i, v ) {
+    console.log(v);
+    race_input.append(v + "<br/>")
+  });
+
+  t.append("<TR>")
+    .append($("<TD>").append(race_label))
+    .append($("<TD>").append(race_input));
 }
