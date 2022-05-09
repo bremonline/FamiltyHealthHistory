@@ -7,6 +7,7 @@
 
 
 <link rel="stylesheet" href="source/css/fhh.css">
+<link rel="stylesheet" href="source/css/test.css">
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
 
 <script src="source/js/test_widgets.js"></script>
@@ -14,6 +15,16 @@
 </head>
 
 <body>
+  <input type="file" id="import_file" style="display:none"/>
+
+  <DIV class='navbar'>
+    <DIV class='navbutton blue' id="import_from_file">Import from File</DIV>
+    <DIV class='navbutton green' id="import_from_url">Import form url</DIV>
+    <DIV class='navbutton red' id="load">Load</DIV>
+    <DIV class='navbutton magenta' id="save">Save</DIV>
+    <DIV class='navbutton cyan' id="export">Export</DIV>
+    <DIV class='navbutton yellow' id="clear">Clear</DIV>
+  </DIV>
 <br/>
   <div id="fhh_data"></div>
 
