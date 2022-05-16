@@ -1,22 +1,34 @@
 // This is the Family Health History Card Widget
 
 (function ( $ ) {
-  possible_races = ["American Indian or Alaska Native", "Asian", "Black or African-American",
-        "Native Hawaiian or Other Pacific Islander", "White"];
-  possible_ethnicities = ["Hispanic or Latino", "Not Hispanic or Latino", "Ashkenazi Jewish"];
+
+  // These are globals for all fhh.cards
+  possible_races = {
+    "indian":"American Indian or Alaska Native",
+    "asian":"Asian",
+    "black":"Black or African-American",
+    "hawaiian":"Native Hawaiian or Other Pacific Islander",
+    "white":"White"
+  }
+  possible_ethnicities = {
+    "hispanic":"Hispanic or Latino",
+    "not_hispanic": "Not Hispanic or Latino",
+    "jewish":"Ashkenazi Jewish"
+  };
 
   $.widget("fhh.card",{
-
 
     options: {
       data:[],
       view:"simple",
+      person_id: "",
     },
-    _display_element : function () {
+    display_element : function () {
       var d = this.options.data;
+
       if (this.options.view == "simple") this.element.text(d["name"]);
       else {
-        var picture_box = get_picture_box(d);
+        var picture_box = get_picture_box(d, this.element.attr("person_id"));
         var name_height_weight_box = get_name_height_weight_box(d);
         var race_ethnicity_age_box = get_race_ethnicity_age_box(d);
         var edit_remove_box = get_edit_remove_box(d);
@@ -26,14 +38,19 @@
           .append(name_height_weight_box)
           .append(race_ethnicity_age_box)
 //          .append(edit_remove_box);
+        console.log(this.element.attr("person_id"));
+
       }
     },
     _create: function() {
-      this._display_element();
+      this.display_element();
     },
     data: function (d) {
       this.options.data = d;
-      this._display_element();
+      this.display_element();
+    },
+    person_id: function(person_id) {
+      this.options.person_id = person_id;
     }
   });
 }( jQuery ));
@@ -53,7 +70,7 @@ function get_name(d) {
   return name;
 }
 
-function get_picture_box(d) {
+function get_picture_box(d, person_id) {
   var icon = "source/images/icon_male.png";
   gender = get_demographics_value(d,"gender");
   if (gender && gender == 'female' || gender == 'F') icon = "source/images/icon_female.png";
@@ -63,8 +80,7 @@ function get_picture_box(d) {
 
   var edit_image_element = $("<IMG class='edit' src='source/images/icon_pencil.gif' />");
   var trash_image_element = $("<IMG class='trash' src='source/images/icon_trash.gif' />");
-
-  edit_image_element.click({data:d} , click_edit);
+  edit_image_element.click({person_id:person_id, data:d} , click_edit);
   edit_image_element.css("cursor","pointer");
   picture_box.append("<br/>").append(edit_image_element).append(trash_image_element);
   return picture_box;
@@ -102,12 +118,27 @@ function get_race_ethnicity_age_box(d) {
   else if (estimated_age) birthdate_age = estimated_age;
   else birthdate_age = "&nbsp;";
 
-  var race = get_demographics_value(d, "race");
-  if (!race) race = "&nbsp;"
-  var ethnicity = get_demographics_value(d, "ethnicity");
-  if (!ethnicity) ethnicity = "&nbsp;"
+  var races = get_demographics_value(d, "races");
+  var race_string = "";
+  if (races) {
+    $.each(races, function (id, name) {
+      race_string = race_string + possible_races[name] + "<br/>"
+    });
+  } else {
+    race_string = "&nbsp;"
+  }
 
-  var box = $("<DIV><br/>" + birthdate_age + "<BR/>" + race + "<BR/>"+ ethnicity + "</DIV>");
+  var ethnicities = get_demographics_value(d, "ethnicities");
+  var ethnicity_string = "";
+  if (ethnicities) {
+    $.each(ethnicities, function (id, name) {
+      ethnicity_string = ethnicity_string + possible_ethnicities[name] + "<br/>"
+    });
+  } else {
+    ethnicity_string = "&nbsp;"
+  }
+
+  var box = $("<DIV><br/>" + birthdate_age + "<BR/>" + race_string + "<BR/>"+ ethnicity_string + "</DIV>");
   box.css("display","inline-block");
   box.css("flex-grow","2");
   return box;
@@ -133,6 +164,7 @@ function get_edit_remove_box(d) {
 
 function click_edit(event) {
   var d = $("<div></div>");
+
   d.dialog({
     modal:true,
     position: {my:"center top", at:"center top"},
@@ -144,6 +176,8 @@ function click_edit(event) {
         }
       }, {
         text: "Submit", click: function() {
+          console.log(event);
+          action_update_person(d, event.data.person_id, event.data.data);
           $( this ).dialog( "close" );
           d.remove();
         }
@@ -151,18 +185,17 @@ function click_edit(event) {
     ]
   });
   var data = event.data.data;
-  var race_list = event;
-  console.log(race_list);
 
   var t = $("<TABLE>");
+  t.addClass("edit_dialog");
 
   set_full_name_in_dialog(data, t);
   set_gender_in_dialog(data, t);
   set_height_id_dialog(data, t);
   set_weight_in_dialog(data, t);
   set_age_in_dialog(data, t);
-  set_race_in_dialog(data, t, race_list);
-  set_ethnicity_in_dialog(data, t, race_list);
+  set_race_in_dialog(data, t);
+  set_ethnicity_in_dialog(data, t);
 
   d.append(t);
 
@@ -184,7 +217,7 @@ function set_gender_in_dialog(data, t) {
   if (data["demographics"] && data["demographics"]["gender"]) gender = data["demographics"]["gender"];
 
   var gender_label = $("<LABEL for='d_gender'>Gender at Birth</LABEL>");
-  var gender_input = $("<SELECT><OPTION></OPTION><OPTION>Unknown</OPTION><OPTION>Male</OPTION><OPTION>Female</OPTION></SELECT>");
+  var gender_input = $("<SELECT id='d_gender'><OPTION></OPTION><OPTION>Unknown</OPTION><OPTION>Male</OPTION><OPTION>Female</OPTION></SELECT>");
   gender_input.val(gender);
   t.append("<TR>")
     .append($("<TD>").append(gender_label))
@@ -217,7 +250,6 @@ function set_height_id_dialog(data, t){
     inches_input.val(inches);
   }
   if (height_in_cm) {
-    console.log(height_in_cm);
     cm_input.val(height_in_cm);
   }
   t.append("<TR>")
@@ -233,7 +265,7 @@ function set_weight_in_dialog(data, t) {
 
   var weight_label = $("<LABEL for='d_weight'>Weight</LABEL>");
   var weight_input = $("<INPUT type='text' id='d_weight' size='5'></INPUT>");
-  var weight_units = $("<SELECT><OPTION></OPTION><OPTION>lb</OPTION><OPTION>kg</OPTION></SELECT>");
+  var weight_units = $("<SELECT id='d_weight_units'><OPTION></OPTION><OPTION>lb</OPTION><OPTION>kg</OPTION></SELECT>");
   var weight_input_div = $("<DIV>").append(weight_input).append(" ").append(weight_units);
 
   if (weight_in_pounds) {
@@ -335,18 +367,14 @@ function set_race_in_dialog(data, t) {
   var races = [];
   if (data["demographics"] && data["demographics"]["races"]) races = data["demographics"]["races"];
 
-  console.log(possible_races);
-  console.log(races);
-
   var race_label = $("<LABEL for='d_race'>Race</LABEL>");
   var race_input = $("<DIV style='font-size:small'>");
 
 
-  jQuery.each( possible_races, function( i, v ) {
-    check = races.includes(v)
-    console.log(v + ":" + check);
-    checkbox = $("<INPUT type='checkbox'></INPUT>").attr("id", v).attr("checked", check);
-    race_input.append(checkbox).append(v + "<br/>");
+  $.each( possible_races, function( id, name ) {
+    check = races.includes(id)
+    checkbox = $("<INPUT type='checkbox'></INPUT>").attr("id", id).attr("checked", check);
+    race_input.append(checkbox).append(name + "<br/>");
   });
 
   t.append("<TR>")
@@ -358,21 +386,104 @@ function set_ethnicity_in_dialog(data, t) {
   var ethnicities = [];
   if (data["demographics"] && data["demographics"]["ethnicities"]) ethnicities = data["demographics"]["ethnicities"];
 
-  console.log(possible_ethnicities);
-  console.log(ethnicities);
-
   var ethnicity_label = $("<LABEL for='d_race'>Ethnicity</LABEL>");
   var ethnicity_input = $("<DIV style='font-size:small'>");
 
 
-  jQuery.each( possible_ethnicities, function( i, v ) {
-    check = ethnicities.includes(v)
-    console.log(v + ":" + check);
-    checkbox = $("<INPUT type='checkbox'></INPUT>").attr("id", v).attr("checked", check);
-    ethnicity_input.append(checkbox).append(v + "<br/>");
+
+  $.each( possible_ethnicities, function( id, name ) {
+    check = ethnicities.includes(id)
+    checkbox = $("<INPUT type='checkbox'></INPUT>").attr("id", id).attr("checked", check);
+    ethnicity_input.append(checkbox).append(name + "<br/>");
   });
 
   t.append("<TR>")
     .append($("<TD>").append(ethnicity_label))
     .append($("<TD>").append(ethnicity_input));
+}
+
+function action_update_person(dialog, person_id, data) {
+
+  var fullname = dialog.find("#d_fullname").val();
+  if (fullname != data['name']) data['name'] = fullname;
+
+  // demographics needs that object in the json
+  if (!data['demographics']) {
+    data['demographics'] = {};
+  }
+
+  var gender = dialog.find("#d_gender").val();
+  if (gender && gender != "") data['demographics']['gender'] = gender;
+
+  var feet=parseInt(dialog.find("#d_feet").val());
+  var inches=parseInt(dialog.find("#d_inches").val());
+  var cm = parseInt(dialog.find("#d_cm").val());
+  // Feet-inches takes precidence
+  if (feet || inches) {
+    console.log((feet * 12) + inches);
+    data['demographics']['height_in_inches'] = (feet * 12) + inches;
+    delete data['demographics']['height_in_cm'];
+  } else if (cm) {
+    data['demographics']['height_in_cm'] = cm;
+    delete data['demographics']['height_in_inches'];
+  }
+
+  var weight = dialog.find("#d_weight").val();
+  var weight_units = dialog.find("#d_weight_units").val();
+
+  if (weight && weight_units && weight_units=="lb") {
+    data['demographics']['weight_in_pounds'] = weight;
+    delete data['demographics']['weight_in_kilograms'];
+
+  } else if (weight && weight_units && weight_units=="kg"){
+    data['demographics']['weight_in_kilograms'] = weight;
+    delete data['demographics']['weight_in_pounds'];
+  }
+
+// Birthdate, Age, or Estimated Age
+  var age_type = dialog.find("#d_age_type").val();
+  var age = parseInt(dialog.find("#d_age").val());
+  var birthdate = dialog.find("#d_birthdate").val();
+  var estimated_age = dialog.find("#d_estimated_age").val();
+
+  console.log(age_type);
+  console.log(age);
+  console.log(birthdate);
+  console.log(estimated_age);
+
+  if (age_type && age_type == 'Age') {
+    data['demographics']['age'] = age;
+    delete data['demographics']['birthdate'];
+    delete data['demographics']['estimated_age'];
+  } else if (age_type && age_type == 'Birthdate') {
+    delete data['demographics']['age'];
+    data['demographics']['birthdate'] = birthdate;
+    delete data['demographics']['estimated_age'];
+  } else if (age_type && age_type == 'Est. Age'){
+    delete data['demographics']['age'];
+    delete data['demographics']['birthdate'];
+    data['demographics']['estimated_age'] = estimated_age;
+  }
+
+// Races
+
+  var races = [];
+  $.each( possible_races, function( id, name ) {
+    if ( $("#" + id).prop('checked') ) {
+      races.push(id);
+    }
+  });
+  data['demographics']['races'] = races;
+
+// ethnicitis
+  var ethnicities = [];
+  $.each( possible_ethnicities, function( id, name ) {
+    if ( $("#" + id).prop('checked') ) {
+      ethnicities.push(id);
+    }
+  });
+  data['demographics']['ethnicities'] = ethnicities;
+
+  // Now we have to refresh the card.
+  $(".fhh_card[person_id=" + person_id + "]").card("display_element");
 }

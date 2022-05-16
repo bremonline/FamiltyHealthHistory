@@ -11,3 +11,8 @@ body {
   flex-wrap:wrap;
   justify-content:flex-start;
 }
+
+.edit_dialog {
+  font-size: small;
+  background-color:EEE;
+}

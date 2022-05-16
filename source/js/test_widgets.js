@@ -3,6 +3,11 @@ var data = [];
 
 $(document).ready(function() {
   // executes when HTML-Document is loaded and DOM is ready
+
+  $("#log").click(function() {
+    console.log(data);
+  });
+
   $("#save").click(function() {
     localStorage.setItem("fhh_data", JSON.stringify(data))
   });
@@ -27,7 +32,6 @@ $(document).ready(function() {
     reader.readAsText(e.target.files[0]);
     reader.onload = function(e) {
       data = JSON.parse(e.target.result);
-      console.log(data);
       display_fhh(data["proband"], "complex");
     };
     document.getElementById('import_file').value= null; // resets the value to allow reload
@@ -51,10 +55,8 @@ $(document).ready(function() {
           text: "Submit", click: function() {
             $( this ).dialog( "close" );
             var url = $("#d_pick_url_input").val()
-            console.log("URL:" + url);
             $.getJSON(url, function (json) {
-              console.log(json);
-              data= json;
+              data = json;
               display_fhh(data["proband"], "complex");
             });
           }
@@ -93,7 +95,6 @@ function display_fhh(id, view) {
   // Make Children Cards
   var children = data["people"][proband]["children"];
   children.forEach(function(person_id) {
-    console.log(person_id);
     var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id);
     $("#fhh_data").append(person_div);
   });
@@ -101,7 +102,6 @@ function display_fhh(id, view) {
   // Make Sibling Cards
   var full_siblings = get_full_siblings(data, proband, father_id, mother_id);
   full_siblings.forEach(function(person_id) {
-    console.log(person_id);
     var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id);
     $("#fhh_data").append(person_div);
   });
@@ -113,6 +113,7 @@ function display_fhh(id, view) {
 // This is where we add the data to all cards based on the person_id of the card
   $(".fhh_card").each(function(i) {
     var person_id = $(this).attr("person_id");
+    $(this).card("person_id", person_id);
     $(this).card("data", data["people"][person_id]);
   });
 }
@@ -134,6 +135,15 @@ function get_full_siblings(d, proband_id, father_id, mother_id) {
   $.each(common, function(i,v) {
     if (v != proband_id) siblings.push(v);
   });
-  console.log (siblings);
   return (siblings);
+}
+
+function exportJson(data, exportName){
+  var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+  var downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute("href",     dataStr);
+  downloadAnchorNode.setAttribute("download", exportName + ".json");
+  document.body.appendChild(downloadAnchorNode); // required for firefox
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
 }
