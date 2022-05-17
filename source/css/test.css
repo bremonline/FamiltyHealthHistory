@@ -17,6 +17,7 @@ body {
   align-self:baseline;
   display:flex;
   flex-wrap:wrap;
+  justify-content: center;
 }
 
 .navbutton {

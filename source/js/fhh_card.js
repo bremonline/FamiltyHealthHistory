@@ -27,14 +27,12 @@
       var d = this.options.data;
 
       if (this.options.view == "complex") {
-        var picture_box = get_picture_box(d, this.element.attr("person_id"));
-        var name_height_weight_box = get_name_height_weight_box(d, this.element.attr("person_id"));
-        var race_ethnicity_age_box = get_race_ethnicity_age_box(d);
+        var stats_box = get_stats_box(d, this.element.attr("person_id"));
+        var race_ethnicity_box = get_race_ethnicity_box(d);
 
         this.element.empty()
-//          .append(picture_box)
-          .append(name_height_weight_box)
-          .append(race_ethnicity_age_box)
+          .append(stats_box)
+          .append(race_ethnicity_box)
         console.log(this.element.attr("person_id"));
       } else if (this.options.view == "card") {
 
@@ -72,23 +70,7 @@ function get_name(d) {
   return name;
 }
 
-function get_picture_box(d, person_id) {
-  var icon = "source/images/icon_male.png";
-  gender = get_demographics_value(d,"gender");
-  if (gender && gender == 'female' || gender == 'F') icon = "source/images/icon_female.png";
-  var picture_box = $("<DIV><IMG src=" + icon + " height='64' alt='silhouette' /></DIV>");
-  picture_box.css("display","inline-block");
-  picture_box.css("text-align","center");
-
-  var edit_image_element = $("<IMG class='edit' src='source/images/icon_pencil.gif' />");
-  var trash_image_element = $("<IMG class='trash' src='source/images/icon_trash.gif' />");
-  edit_image_element.click({person_id:person_id, data:d} , click_edit);
-  edit_image_element.css("cursor","pointer");
-  picture_box.append("<br/>").append(edit_image_element).append(trash_image_element);
-  return picture_box;
-}
-
-function get_name_height_weight_box (d, person_id) {
+function get_stats_box (d, person_id) {
 // Adding picture box here
 
 
@@ -131,7 +113,7 @@ function get_name_height_weight_box (d, person_id) {
   picture_box.append("<br/>").append(edit_image_element).append(trash_image_element);
 
   var box = $("<DIV><B>" + name + "</B><BR/>" + birthdate_age + "<BR/>" + gender + "<BR/>" + height_str + "<BR/>" + weight_str + "</DIV>");
-  box.css("width","300px");
+  box.css("width","200px");
   box.css("float","left");
 
   var div = $("<DIV>");
@@ -139,7 +121,7 @@ function get_name_height_weight_box (d, person_id) {
   return div;
 }
 
-function get_race_ethnicity_age_box(d) {
+function get_race_ethnicity_box(d) {
 
   var races = get_demographics_value(d, "races");
   var race_string = "";
@@ -162,27 +144,10 @@ function get_race_ethnicity_age_box(d) {
   }
 
   var box = $("<DIV>" + race_string + "<BR/>"+ ethnicity_string + "</DIV>");
-  box.css("width","300px");
+  box.css("width","200px");
 
   return box;
 
-}
-
-function get_edit_remove_box(d) {
-  var edit_image_element = $("<IMG class='edit' src='source/images/icon_pencil.gif' />");
-  var trash_image_element = $("<IMG class='trash' src='source/images/icon_trash.gif' />");
-
-  edit_image_element.click({data:d} , click_edit);
-  edit_image_element.css("cursor","pointer");
-
-  var box = $("<DIV></DIV>");
-  box.append(edit_image_element).append("<br/>").append(trash_image_element);
-  box.css("display","inline-block");
-  box.css("vertical-align", "center")
-  box.css("flex-grow","1");
-  box.css("text-align","right");
-  box.css("padding","10px");
-  return box;
 }
 
 function click_edit(event) {
