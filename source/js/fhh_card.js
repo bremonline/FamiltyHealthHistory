@@ -28,7 +28,7 @@
 
       if (this.options.view == "complex") {
         var picture_box = get_picture_box(d, this.element.attr("person_id"));
-        var name_height_weight_box = get_name_height_weight_box(d);
+        var name_height_weight_box = get_name_height_weight_box(d, this.element.attr("person_id"));
         var race_ethnicity_age_box = get_race_ethnicity_age_box(d);
 
         this.element.empty()
@@ -88,7 +88,7 @@ function get_picture_box(d, person_id) {
   return picture_box;
 }
 
-function get_name_height_weight_box (d) {
+function get_name_height_weight_box (d, person_id) {
 // Adding picture box here
 
 
@@ -106,19 +106,6 @@ function get_name_height_weight_box (d) {
   if (weight_in_pounds) weight_str = weight_in_pounds + " pounds";
   else if (weight_in_kilograms) weight_str = weight_in_kilograms + " kilograms";
 
-
-  var icon = "source/images/icon_male.png";
-  gender = get_demographics_value(d,"gender");
-  if (gender && gender == 'female' || gender == 'F') icon = "source/images/icon_female.png";
-  var picture_box = $("<DIV><IMG src=" + icon + " height='64' alt='silhouette' /></DIV>");
-
-
-  var box = $("<DIV><B>" + name + "</B><BR/>" + gender + "<BR/>"+ height_str + "<BR/>" + weight_str + "</DIV>");
-  box.css("width","320px");
-  return box;
-}
-
-function get_race_ethnicity_age_box(d) {
   var birthdate = get_demographics_value(d, "birthdate");
   var age = get_demographics_value(d, "age");
   var estimated_age = get_demographics_value(d, "estimated_age");
@@ -128,6 +115,31 @@ function get_race_ethnicity_age_box(d) {
   else if (age) birthdate_age = age + " years";
   else if (estimated_age) birthdate_age = estimated_age;
   else birthdate_age = "&nbsp;";
+
+
+  var icon = "source/images/icon_male.png";
+  gender = get_demographics_value(d,"gender");
+  if (gender && gender == 'female' || gender == 'F') icon = "source/images/icon_female.png";
+  var picture_box = $("<DIV><IMG src=" + icon + " height='64' alt='silhouette' /></DIV>");
+  picture_box.css("float","left");
+
+
+  var edit_image_element = $("<IMG class='edit' src='source/images/icon_pencil.gif' />");
+  var trash_image_element = $("<IMG class='trash' src='source/images/icon_trash.gif' />");
+  edit_image_element.click({person_id:person_id, data:d} , click_edit);
+  edit_image_element.css("cursor","pointer");
+  picture_box.append("<br/>").append(edit_image_element).append(trash_image_element);
+
+  var box = $("<DIV><B>" + name + "</B><BR/>" + birthdate_age + "<BR/>" + gender + "<BR/>" + height_str + "<BR/>" + weight_str + "</DIV>");
+  box.css("width","300px");
+  box.css("float","left");
+
+  var div = $("<DIV>");
+  div.append(picture_box).append(box);
+  return div;
+}
+
+function get_race_ethnicity_age_box(d) {
 
   var races = get_demographics_value(d, "races");
   var race_string = "";
@@ -149,8 +161,8 @@ function get_race_ethnicity_age_box(d) {
     ethnicity_string = "&nbsp;"
   }
 
-  var box = $("<DIV><br/>" + birthdate_age + "<BR/>" + race_string + "<BR/>"+ ethnicity_string + "</DIV>");
-  box.css("width","320px");
+  var box = $("<DIV>" + race_string + "<BR/>"+ ethnicity_string + "</DIV>");
+  box.css("width","300px");
 
   return box;
 
