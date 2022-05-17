@@ -1,10 +1,25 @@
+body {
+    font-family: Arial, Verdana, sans-serif;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    align-items: center;
+    justify-content: center;
+}
+
+.fhh_family {
+  align-self: center;
+  justify-self: center;
+}
+
+
 .navbar {
+  align-self:baseline;
   display:flex;
   flex-wrap:wrap;
 }
 
 .navbutton {
-  width:31%;
   text-align:center;
   padding:5px;
 }

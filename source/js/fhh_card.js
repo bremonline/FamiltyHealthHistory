@@ -26,21 +26,23 @@
     display_element : function () {
       var d = this.options.data;
 
-      if (this.options.view == "simple") this.element.text(d["name"]);
-      else {
+      if (this.options.view == "complex") {
         var picture_box = get_picture_box(d, this.element.attr("person_id"));
         var name_height_weight_box = get_name_height_weight_box(d);
         var race_ethnicity_age_box = get_race_ethnicity_age_box(d);
-        var edit_remove_box = get_edit_remove_box(d);
 
         this.element.empty()
-          .append(picture_box)
+//          .append(picture_box)
           .append(name_height_weight_box)
           .append(race_ethnicity_age_box)
-//          .append(edit_remove_box);
         console.log(this.element.attr("person_id"));
+      } else if (this.options.view == "card") {
 
+
+      } else {
+         this.element.text(d["name"]);
       }
+
     },
     _create: function() {
       this.display_element();
@@ -87,6 +89,9 @@ function get_picture_box(d, person_id) {
 }
 
 function get_name_height_weight_box (d) {
+// Adding picture box here
+
+
   var name = get_name(d);
   var gender = get_demographics_value(d, "gender");
   if (!gender) gender = "&nbsp;"
@@ -101,9 +106,15 @@ function get_name_height_weight_box (d) {
   if (weight_in_pounds) weight_str = weight_in_pounds + " pounds";
   else if (weight_in_kilograms) weight_str = weight_in_kilograms + " kilograms";
 
+
+  var icon = "source/images/icon_male.png";
+  gender = get_demographics_value(d,"gender");
+  if (gender && gender == 'female' || gender == 'F') icon = "source/images/icon_female.png";
+  var picture_box = $("<DIV><IMG src=" + icon + " height='64' alt='silhouette' /></DIV>");
+
+
   var box = $("<DIV><B>" + name + "</B><BR/>" + gender + "<BR/>"+ height_str + "<BR/>" + weight_str + "</DIV>");
-  box.css("display","inline-block");
-  box.css("flex-grow","3");
+  box.css("width","320px");
   return box;
 }
 
@@ -139,8 +150,8 @@ function get_race_ethnicity_age_box(d) {
   }
 
   var box = $("<DIV><br/>" + birthdate_age + "<BR/>" + race_string + "<BR/>"+ ethnicity_string + "</DIV>");
-  box.css("display","inline-block");
-  box.css("flex-grow","2");
+  box.css("width","320px");
+
   return box;
 
 }

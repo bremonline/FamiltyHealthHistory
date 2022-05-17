@@ -1,15 +1,14 @@
-body {
-    font-family: Arial, Verdana, sans-serif;
-}
 
 .fhh_card {
   border-top: 1px solid black;
   border-left: 1px solid black;
   border-right: 1px solid black;
   border-bottom: 1px solid black;
+  box-shadow: 5px 5px #CCC;
   display:flex;
   flex-wrap:wrap;
-  justify-content:flex-start;
+  padding:5px;
+  margin:10px;
 }
 
 .edit_dialog {
