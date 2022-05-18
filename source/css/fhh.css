@@ -9,6 +9,8 @@
   flex-wrap:wrap;
   padding-bottom:5px;
   margin:10px;
+  font-size:14px
+
 }
 
 .fhh_title {
@@ -24,13 +26,19 @@
 }
 
 .fhh_stats_box {
-  width:200px;
+  width:180px;
   float:left;
+  padding:5px;
+}
+
+.fhh_picture_stats_box {
+  padding:5px;
 }
 
 .fhh_race_ethnicity_box {
-  width:300px;
+  width:280px;
   float:left;
+  padding:10px;
 }
 
 .fhh_disease_box {

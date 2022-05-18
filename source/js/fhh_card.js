@@ -124,7 +124,7 @@ function get_stats_box (d, person_id) {
   var stats_box = $("<DIV><B>" + name + "</B><BR/>" + gender + "<BR/>" + birthdate_age + "<BR/>" + height_str + "<BR/>" + weight_str + "</DIV>");
   stats_box.addClass("fhh_stats_box");
 
-  var div = $("<DIV>");
+  var div = $("<DIV>").addClass("fhh_picture_stats_box");
   div.append(picture_box).append(stats_box);
   return div;
 }
@@ -170,6 +170,14 @@ function get_disease_box (d) {
   var div = $("<DIV>");
 
   var diseases = d["diseases"];
+
+
+  if (diseases && Object.keys(diseases).length == 1) {
+    div.append("<B>Disease: </B><br/>" );
+  } else if (diseases && Object.keys(diseases).length > 1){
+    div.append("<B>Diseases: </B><br/>" );
+  }
+
   $.each( diseases, function( disease_name, info ) {
     console.log(info["age_of_diagnosis"]);
 
