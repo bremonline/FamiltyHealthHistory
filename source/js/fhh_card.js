@@ -20,30 +20,30 @@
 
     options: {
       data:[],
-      view:"simple",
-      person_id: "",
+      view:"simple"
     },
     display_element : function () {
+
       var d = this.options.data;
 
       if (this.options.view == "complex") {
+        console.log(this.element.attr("relationship") + ":" + this.element.attr("person_id"));
+        var relationship_box = get_relationship_box(d, this.element.attr("relationship"));
         var stats_box = get_stats_box(d, this.element.attr("person_id"));
         var race_ethnicity_box = get_race_ethnicity_box(d);
+        var disease_box = get_disease_box(d);
 
         this.element.empty()
+          .append(relationship_box)
           .append(stats_box)
           .append(race_ethnicity_box)
-        console.log(this.element.attr("person_id"));
-      } else if (this.options.view == "card") {
-
-
+          .append(disease_box);
       } else {
          this.element.text(d["name"]);
       }
 
     },
     _create: function() {
-      this.display_element();
     },
     data: function (d) {
       this.options.data = d;
@@ -51,6 +51,9 @@
     },
     person_id: function(person_id) {
       this.options.person_id = person_id;
+    },
+    relationship: function(relationship) {
+      this.options.relationship = relationship;
     }
   });
 }( jQuery ));
@@ -68,6 +71,12 @@ function get_name(d) {
   var name = d["name"];
   if (name == null) return "Unknown";
   return name;
+}
+
+function get_relationship_box(d, relationship) {
+  var div = $("<DIV>");
+  div.append(relationship).addClass("fhh_title");
+  return div;
 }
 
 function get_stats_box (d, person_id) {
@@ -101,9 +110,9 @@ function get_stats_box (d, person_id) {
 
   var icon = "source/images/icon_male.png";
   gender = get_demographics_value(d,"gender");
-  if (gender && gender == 'female' || gender == 'F') icon = "source/images/icon_female.png";
+  if (gender && gender == 'Female' || gender == 'F') icon = "source/images/icon_female.png";
   var picture_box = $("<DIV><IMG src=" + icon + " height='64' alt='silhouette' /></DIV>");
-  picture_box.css("float","left");
+  picture_box.addClass("fhh_picture_box");
 
 
   var edit_image_element = $("<IMG class='edit' src='source/images/icon_pencil.gif' />");
@@ -112,42 +121,67 @@ function get_stats_box (d, person_id) {
   edit_image_element.css("cursor","pointer");
   picture_box.append("<br/>").append(edit_image_element).append(trash_image_element);
 
-  var box = $("<DIV><B>" + name + "</B><BR/>" + birthdate_age + "<BR/>" + gender + "<BR/>" + height_str + "<BR/>" + weight_str + "</DIV>");
-  box.css("width","200px");
-  box.css("float","left");
+  var stats_box = $("<DIV><B>" + name + "</B><BR/>" + gender + "<BR/>" + birthdate_age + "<BR/>" + height_str + "<BR/>" + weight_str + "</DIV>");
+  stats_box.addClass("fhh_stats_box");
 
   var div = $("<DIV>");
-  div.append(picture_box).append(box);
+  div.append(picture_box).append(stats_box);
   return div;
 }
 
 function get_race_ethnicity_box(d) {
 
+
   var races = get_demographics_value(d, "races");
   var race_string = "";
-  if (races) {
+  if (races && races.length > 0) {
+    if (races.length == 1) race_string = "<B>Race:</B><br/>";
+    else race_string = "<B>Races:</B><br/>";
     $.each(races, function (id, name) {
       race_string = race_string + possible_races[name] + "<br/>"
     });
-  } else {
-    race_string = "&nbsp;"
   }
 
   var ethnicities = get_demographics_value(d, "ethnicities");
   var ethnicity_string = "";
-  if (ethnicities) {
+  if (ethnicities && ethnicities.length > 0) {
+    if (ethnicities.length == 1) ethnicity_string = "<B>Ethnicity:</B><br/>";
+    else ethnicity_string = "<B>Ethnicities:</B><br/>";
     $.each(ethnicities, function (id, name) {
       ethnicity_string = ethnicity_string + possible_ethnicities[name] + "<br/>"
     });
   } else {
     ethnicity_string = "&nbsp;"
   }
+  var box;
+  if (race_string && race_string != ""){
+    box = $("<DIV>" + race_string + "<BR/>"+ ethnicity_string + "</DIV>");
+  } else {
+    box = $("<DIV>" + ethnicity_string + "</DIV>");
 
-  var box = $("<DIV>" + race_string + "<BR/>"+ ethnicity_string + "</DIV>");
-  box.css("width","200px");
+  }
+  box.addClass("fhh_race_ethnicity_box");
 
   return box;
 
+}
+
+function get_disease_box (d) {
+  var div = $("<DIV>");
+
+  var diseases = d["diseases"];
+  $.each( diseases, function( disease_name, info ) {
+    console.log(info["age_of_diagnosis"]);
+
+    if (info['age_of_diagnosis']) {
+      div.append( disease_name + " (at " + info['age_of_diagnosis'] + " years) <br/>" );
+    } else {
+      div.append( disease_name + "<br/>");
+    }
+  });
+
+  div.addClass("fhh_disease_box");
+  return div;
 }
 
 function click_edit(event) {

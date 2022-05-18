@@ -17,7 +17,7 @@
           "races" : ["White", "Black"],
           "ethnicities" : ["Not Hispanic or Latino", "Ashkenazi Jewish"]
         },
-        "diseases": [{
+        "diseases": {
           "Pre-diabetes": [{
             "age_of_diagnosis": 51,
             "concept_codes": {"ICD-10":"R73.01"}
@@ -25,7 +25,7 @@
           "Myopia": [{
             "age_of_diagnosis": 14
           }]
-        }],
+        },
         "mother":"216f5c83-ec39-49b5-96de-ff17202a1271",
         "father":"0b029d11-87b1-4f14-80f2-b5f59c71d2c2",
         "children": [

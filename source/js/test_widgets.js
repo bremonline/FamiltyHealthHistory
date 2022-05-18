@@ -80,29 +80,29 @@ function display_fhh(id, view) {
   var proband = data["proband"];
 
   // Make Proband Card
-  var proband_div = $("<div></div>").addClass("fhh_card").attr("person_id", proband);
+  var proband_div = $("<div></div>").addClass("fhh_card").attr("person_id", proband).attr("relationship", "Proband");
   $("#fhh_data").append(proband_div);
 
   // Make Parents Cards
   var father_id = data["people"][proband]["father"];
-  var father_div = $("<div></div>").addClass("fhh_card").attr("person_id", father_id);
+  var father_div = $("<div></div>").addClass("fhh_card").attr("person_id", father_id).attr("relationship", "Father");
   $("#fhh_data").append(father_div);
 
   var mother_id = data["people"][proband]["mother"];
-  var mother_div = $("<div></div>").addClass("fhh_card").attr("person_id", mother_id);
+  var mother_div = $("<div></div>").addClass("fhh_card").attr("person_id", mother_id).attr("relationship", "Mother");
   $("#fhh_data").append(mother_div);
 
   // Make Children Cards
   var children = data["people"][proband]["children"];
   children.forEach(function(person_id) {
-    var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id);
+    var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id).attr("relationship", "Child");
     $("#fhh_data").append(person_div);
   });
 
   // Make Sibling Cards
   var full_siblings = get_full_siblings(data, proband, father_id, mother_id);
   full_siblings.forEach(function(person_id) {
-    var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id);
+    var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id).attr("relationship", "Sibling");
     $("#fhh_data").append(person_div);
   });
 
@@ -113,7 +113,7 @@ function display_fhh(id, view) {
 // This is where we add the data to all cards based on the person_id of the card
   $(".fhh_card").each(function(i) {
     var person_id = $(this).attr("person_id");
-    $(this).card("person_id", person_id);
+    var relationship = $(this).attr("relationship");
     $(this).card("data", data["people"][person_id]);
   });
 }
