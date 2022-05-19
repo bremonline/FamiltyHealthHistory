@@ -238,6 +238,7 @@ function lock_clicked(event) {
 function picture_box_clicked(event) {
   alert ("P");
 }
+
 function stats_box_clicked(event) {
   var data = event.data.data;
   var person_id = event.data.person_id;
@@ -268,7 +269,16 @@ function race_ethnicity_box_clicked(event) {
   d.append(t);
 }
 function disease_box_clicked(event) {
-  alert ("D");
+  var data = event.data.data;
+  var person_id = event.data.person_id;
+
+  var d = build_dialog(action_update_disease, data, person_id);
+  var t = $("<TABLE>");
+  t.addClass("edit_dialog");
+
+  set_diseases_in_dialog(data, t);
+
+  d.append(t);
 }
 
 function edit_clicked(event) {
@@ -502,8 +512,6 @@ function set_ethnicity_in_dialog(data, t) {
   var ethnicity_label = $("<LABEL for='d_race'>Ethnicity</LABEL>");
   var ethnicity_input = $("<DIV style='font-size:small'>");
 
-
-
   $.each( possible_ethnicities, function( id, name ) {
     check = ethnicities.includes(id)
     checkbox = $("<INPUT type='checkbox'></INPUT>").attr("id", id).attr("checked", check);
@@ -513,6 +521,50 @@ function set_ethnicity_in_dialog(data, t) {
   t.append("<TR>")
     .append($("<TD>").append(ethnicity_label))
     .append($("<TD>").append(ethnicity_input));
+}
+
+function set_diseases_in_dialog(data, t) {
+  if (data["diseases"]) {
+    $.each( data["diseases"], function( id, info ) {
+      if (info["age_of_diagnosis"]) {
+        t.append(id + " (at " + info["age_of_diagnosis"] + " years)<br/>")
+      } else
+        t.append(id + "<br/>")
+    });
+  }
+  var add_button = $("<DIV><BUTTON>Add</BUTTON></DIV>").css("float", "right").click(add_disease);
+  var disease_input = $("<INPUT type='text' id='d_disease' size='30'></INPUT>");
+  var age_at_diagnosis = $("<SELECT id = 'd_age_at_diagnosis'>")
+    .append("<OPTION></OPTION>")
+    .append("<OPTION>Unknown</OPTION>")
+    .append("<OPTION>Pre-Birth</OPTION>")
+    .append("<OPTION>Newborn</OPTION>")
+    .append("<OPTION>In Infancy</OPTION>")
+    .append("<OPTION>In Childhood</OPTION>")
+    .append("<OPTION>20-29 Years</OPTION>")
+    .append("<OPTION>30-39 Years</OPTION>")
+    .append("<OPTION>40-49 Years</OPTION>")
+    .append("<OPTION>50-59 Years</OPTION>")
+    .append("<OPTION>60 Years or older</OPTION>")
+    .css("width","156px").css("height","21.5px");
+
+  t.append("<br/>").append("Disease: ").append(disease_input)
+    .append("<br/>Age at Diagnosis: ").append(age_at_diagnosis)
+    .append(add_button);
+}
+
+function add_disease() {
+  alert("adding");
+}
+
+function action_update_disease(dialog, person_id, data) {
+
+  // demographics needs that object in the json
+  if (!data['demographics']) {
+    data['demographics'] = {};
+  }
+  // Now we have to refresh the card.
+  $(".fhh_card[person_id=" + person_id + "]").card("display_element");
 }
 
 function action_update_race(dialog, person_id, data) {
