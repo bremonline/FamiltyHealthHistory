@@ -18,11 +18,11 @@
   border-bottom:1px solid black;
   width:100%;
   padding:5px;
-  text-align:center;
+  text-align:left;
 }
+
 .fhh_picture_box {
   float:left;
-  height:100px;
 }
 
 .fhh_stats_box {
@@ -36,7 +36,7 @@
 }
 
 .fhh_race_ethnicity_box {
-  width:280px;
+  flex-grow: 1;
   float:left;
   padding:10px;
 }

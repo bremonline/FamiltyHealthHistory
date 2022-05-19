@@ -16,6 +16,8 @@
     "jewish":"Ashkenazi Jewish"
   };
 
+
+
   $.widget("fhh.card",{
 
     options: {
@@ -28,7 +30,7 @@
 
       if (this.options.view == "complex") {
         console.log(this.element.attr("relationship") + ":" + this.element.attr("person_id"));
-        var relationship_box = get_relationship_box(d, this.element.attr("relationship"));
+        var relationship_box = get_title_box(d, this.element.attr("relationship"), this.element.attr("person_id"));
         var stats_box = get_stats_box(d, this.element.attr("person_id"));
         var race_ethnicity_box = get_race_ethnicity_box(d);
         var disease_box = get_disease_box(d);
@@ -49,12 +51,12 @@
       this.options.data = d;
       this.display_element();
     },
-    person_id: function(person_id) {
-      this.options.person_id = person_id;
+    person_id: function(p_id) {
+      this.options.person_id = p_id;
     },
     relationship: function(relationship) {
       this.options.relationship = relationship;
-    }
+    },
   });
 }( jQuery ));
 
@@ -73,9 +75,21 @@ function get_name(d) {
   return name;
 }
 
-function get_relationship_box(d, relationship) {
+function get_title_box(d, relationship, person_id) {
+  var person_name = "Unknown";
+  if (d && d["name"]) person_name = d["name"];
+
+  var lock_div = $("<DIV>");
+  lock_div.append("<IMG src='source/images/icon_lock.png' height='24' alt='lock' />")
+  lock_div.css("float", "right");
+  lock_div.click({person_id:person_id, data:d} , lock_clicked);
+
   var div = $("<DIV>");
-  div.append(relationship).addClass("fhh_title");
+  var name_div = $("<DIV>").append(relationship + " - <B>" + person_name + "</B>");
+  name_div.css("float","left").css("padding-top","5px");
+  div.append(name_div).append(lock_div).addClass("fhh_title");
+
+  div.click({data:d} , title_clicked);
   return div;
 }
 
@@ -114,14 +128,7 @@ function get_stats_box (d, person_id) {
   var picture_box = $("<DIV><IMG src=" + icon + " height='64' alt='silhouette' /></DIV>");
   picture_box.addClass("fhh_picture_box");
 
-
-  var edit_image_element = $("<IMG class='edit' src='source/images/icon_pencil.gif' />");
-  var trash_image_element = $("<IMG class='trash' src='source/images/icon_trash.gif' />");
-  edit_image_element.click({person_id:person_id, data:d} , click_edit);
-  edit_image_element.css("cursor","pointer");
-  picture_box.append("<br/>").append(edit_image_element).append(trash_image_element);
-
-  var stats_box = $("<DIV><B>" + name + "</B><BR/>" + gender + "<BR/>" + birthdate_age + "<BR/>" + height_str + "<BR/>" + weight_str + "</DIV>");
+  var stats_box = $("<DIV>" + gender + "<BR/>" + birthdate_age + "<BR/>" + height_str + "<BR/>" + weight_str + "</DIV>");
   stats_box.addClass("fhh_stats_box");
 
   var div = $("<DIV>").addClass("fhh_picture_stats_box");
@@ -192,30 +199,82 @@ function get_disease_box (d) {
   return div;
 }
 
-function click_edit(event) {
-  var d = $("<div></div>");
+function title_clicked(event) {
+  $(event.target).closest(".fhh_title").first().next().toggle()
+    .next().toggle()
+    .next().toggle();
+}
 
-  d.dialog({
-    modal:true,
-    position: {my:"center top", at:"center top"},
-    buttons: [
-      {
-        text: "Cancel", click: function() {
-          $( this ).dialog( "close" );
-          d.remove();
-        }
-      }, {
-        text: "Submit", click: function() {
-          console.log(event);
-          action_update_person(d, event.data.person_id, event.data.data);
-          $( this ).dialog( "close" );
-          d.remove();
-        }
-      }
-    ]
-  });
+function lock_clicked(event) {
+    var d = event.data.data;
+    var person_id = event.data.person_id;
+
+    console.log(event);
+    var img = $(event.currentTarget).find("img");
+
+    if (img.attr("src") == "source/images/icon_lock.png") {
+      img.attr("src", "source/images/icon_unlock.png");
+      $(event.currentTarget).closest(".fhh_title").first()
+        .next().css("background-color", "#FFC").css("cursor","pointer").children()
+          .first().click({person_id:person_id, data:d}, picture_box_clicked)
+          .next().click({person_id:person_id, data:d}, stats_box_clicked)
+        .parent().next().css("background-color", "#FFC").css("cursor","pointer").click({person_id:person_id, data:d}, race_ethnicity_box_clicked)
+        .next().css("background-color", "#FFC").css("cursor","pointer").click({person_id:person_id, data:d}, disease_box_clicked);
+
+    } else if (img.attr("src") == "source/images/icon_unlock.png") {
+      img.attr("src", "source/images/icon_lock.png");
+      $(event.currentTarget).closest(".fhh_title").first()
+        .next().css("background-color", "#FFF").css("cursor","default").children()
+          .first().unbind()
+          .next().unbind()
+        .parent().next().css("background-color", "#FFF").css("cursor","default").unbind()
+        .next().css("background-color", "#FFF").css("cursor","default").unbind();
+    }
+    console.log($(event.currentTarget).find("img") );
+
+    event.stopPropagation();
+}
+
+function picture_box_clicked(event) {
+  alert ("P");
+}
+function stats_box_clicked(event) {
+  var data = event.data.data;
+  var person_id = event.data.person_id;
+
+  var d = build_dialog(action_update_stats, data, person_id);
+  var t = $("<TABLE>");
+  t.addClass("edit_dialog");
+
+  set_full_name_in_dialog(data, t);
+  set_gender_in_dialog(data, t);
+  set_height_id_dialog(data, t);
+  set_weight_in_dialog(data, t);
+  set_age_in_dialog(data, t);
+
+  d.append(t);
+}
+function race_ethnicity_box_clicked(event) {
+  var data = event.data.data;
+  var person_id = event.data.person_id;
+
+  var d = build_dialog(action_update_race, data, person_id);
+  var t = $("<TABLE>");
+  t.addClass("edit_dialog");
+
+  set_race_in_dialog(data, t);
+  set_ethnicity_in_dialog(data, t);
+
+  d.append(t);
+}
+function disease_box_clicked(event) {
+  alert ("D");
+}
+
+function edit_clicked(event) {
   var data = event.data.data;
 
+  var d = build_dialog(action_update_person);
   var t = $("<TABLE>");
   t.addClass("edit_dialog");
 
@@ -228,7 +287,31 @@ function click_edit(event) {
   set_ethnicity_in_dialog(data, t);
 
   d.append(t);
+}
 
+function build_dialog(fn, data, person_id) {
+  console.log(person_id);
+  var d = $("<div></div>");
+  d.dialog({
+    modal:true,
+    position: {my:"center top", at:"center top"},
+    buttons: [
+      {
+        text: "Cancel", click: function() {
+          $( this ).dialog( "close" );
+          d.remove();
+        }
+      }, {
+        text: "Submit", click: function() {
+          console.log(event);
+          fn(d, person_id, data);
+          $( this ).dialog( "close" );
+          d.remove();
+        }
+      }
+    ]
+  });
+    return d;
 }
 
 function set_full_name_in_dialog(data, t) {
@@ -432,7 +515,37 @@ function set_ethnicity_in_dialog(data, t) {
     .append($("<TD>").append(ethnicity_input));
 }
 
-function action_update_person(dialog, person_id, data) {
+function action_update_race(dialog, person_id, data) {
+
+  // demographics needs that object in the json
+  if (!data['demographics']) {
+    data['demographics'] = {};
+  }
+
+// Races
+
+  var races = [];
+  $.each( possible_races, function( id, name ) {
+    if ( $("#" + id).prop('checked') ) {
+      races.push(id);
+    }
+  });
+  data['demographics']['races'] = races;
+
+// ethnicitis
+  var ethnicities = [];
+  $.each( possible_ethnicities, function( id, name ) {
+    if ( $("#" + id).prop('checked') ) {
+      ethnicities.push(id);
+    }
+  });
+  data['demographics']['ethnicities'] = ethnicities;
+
+  // Now we have to refresh the card.
+  $(".fhh_card[person_id=" + person_id + "]").card("display_element");
+}
+
+function action_update_stats(dialog, person_id, data) {
 
   var fullname = dialog.find("#d_fullname").val();
   if (fullname != data['name']) data['name'] = fullname;
@@ -494,26 +607,7 @@ function action_update_person(dialog, person_id, data) {
     delete data['demographics']['birthdate'];
     data['demographics']['estimated_age'] = estimated_age;
   }
-
-// Races
-
-  var races = [];
-  $.each( possible_races, function( id, name ) {
-    if ( $("#" + id).prop('checked') ) {
-      races.push(id);
-    }
-  });
-  data['demographics']['races'] = races;
-
-// ethnicitis
-  var ethnicities = [];
-  $.each( possible_ethnicities, function( id, name ) {
-    if ( $("#" + id).prop('checked') ) {
-      ethnicities.push(id);
-    }
-  });
-  data['demographics']['ethnicities'] = ethnicities;
-
   // Now we have to refresh the card.
   $(".fhh_card[person_id=" + person_id + "]").card("display_element");
+
 }
