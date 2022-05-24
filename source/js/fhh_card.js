@@ -16,7 +16,7 @@
     "jewish":"Ashkenazi Jewish"
   };
 
-
+  possible_diseases = {};
 
   $.widget("fhh.card",{
 
@@ -46,6 +46,9 @@
 
     },
     _create: function() {
+      $.getJSON("../data/diseases.json", function (data) {
+        possible_diseases = data;
+      });
     },
     data: function (d) {
       this.options.data = d;
@@ -133,6 +136,7 @@ function get_stats_box (d, person_id) {
 
   var div = $("<DIV>").addClass("fhh_picture_stats_box");
   div.append(picture_box).append(stats_box);
+
   return div;
 }
 
@@ -167,11 +171,12 @@ function get_race_ethnicity_box(d) {
     box = $("<DIV>" + ethnicity_string + "</DIV>");
 
   }
-  box.addClass("fhh_race_ethnicity_box");
 
-  return box;
-
+  var div = $("<DIV>").addClass("fhh_race_ethnicity_box");
+  div.append(box);
+  return div;
 }
+
 
 function get_disease_box (d) {
   var div = $("<DIV>");
@@ -189,7 +194,7 @@ function get_disease_box (d) {
     console.log(info["age_of_diagnosis"]);
 
     if (info['age_of_diagnosis']) {
-      div.append( disease_name + " (at " + info['age_of_diagnosis'] + " years) <br/>" );
+      div.append( disease_name + " (" + info['age_of_diagnosis'] + ") <br/>" );
     } else {
       div.append( disease_name + "<br/>");
     }
@@ -215,20 +220,20 @@ function lock_clicked(event) {
     if (img.attr("src") == "source/images/icon_lock.png") {
       img.attr("src", "source/images/icon_unlock.png");
       $(event.currentTarget).closest(".fhh_title").first()
-        .next().css("background-color", "#FFC").css("cursor","pointer").children()
+        .next().addClass("fhh_turn_on_editing").children()
           .first().click({person_id:person_id, data:d}, picture_box_clicked)
           .next().click({person_id:person_id, data:d}, stats_box_clicked)
-        .parent().next().css("background-color", "#FFC").css("cursor","pointer").click({person_id:person_id, data:d}, race_ethnicity_box_clicked)
-        .next().css("background-color", "#FFC").css("cursor","pointer").click({person_id:person_id, data:d}, disease_box_clicked);
+        .parent().next().addClass("fhh_turn_on_editing").click({person_id:person_id, data:d}, race_ethnicity_box_clicked)
+        .next().addClass("fhh_turn_on_editing").click({person_id:person_id, data:d}, disease_box_clicked);
 
     } else if (img.attr("src") == "source/images/icon_unlock.png") {
       img.attr("src", "source/images/icon_lock.png");
       $(event.currentTarget).closest(".fhh_title").first()
-        .next().css("background-color", "#FFF").css("cursor","default").children()
+        .next().removeClass("fhh_turn_on_editing").children()
           .first().unbind()
           .next().unbind()
-        .parent().next().css("background-color", "#FFF").css("cursor","default").unbind()
-        .next().css("background-color", "#FFF").css("cursor","default").unbind();
+        .parent().next().removeClass("fhh_turn_on_editing").unbind()
+        .next().removeClass("fhh_turn_on_editing").unbind();
     }
     console.log($(event.currentTarget).find("img") );
 
@@ -273,7 +278,7 @@ function disease_box_clicked(event) {
   var person_id = event.data.person_id;
 
   var d = build_dialog(action_update_disease, data, person_id);
-  var t = $("<TABLE>");
+  var t = $("<TABLE id='disease_table'>");
   t.addClass("edit_dialog");
 
   set_diseases_in_dialog(data, t);
@@ -524,17 +529,59 @@ function set_ethnicity_in_dialog(data, t) {
 }
 
 function set_diseases_in_dialog(data, t) {
+  console.log(possible_diseases);
+
+  //List all diseases and remove button
+  var diseases_div = $("<DIV>").css("font-size", "10px");
+
   if (data["diseases"]) {
     $.each( data["diseases"], function( id, info ) {
+      remove_disease_button = $("<IMG src='source/images/icon_x.png' height='14' style='vertical-align:middle;' alt='Remove Disease' />");
+      remove_disease_button.attr("disease", id);
+      remove_disease_button.attr("age_of_dianosis", info["age_of_diagnosis"]);
+      remove_disease_button.click({data:data}, remove_disease);
+
       if (info["age_of_diagnosis"]) {
-        t.append(id + " (at " + info["age_of_diagnosis"] + " years)<br/>")
-      } else
-        t.append(id + "<br/>")
+        diseases_div.append(id + " (" + info["age_of_diagnosis"] + ")");
+      } else {
+        diseases_div.append(id);
+      }
+      diseases_div.append("&nbsp;").append(remove_disease_button).append("<br/>") ;
     });
   }
-  var add_button = $("<DIV><BUTTON>Add</BUTTON></DIV>").css("float", "right").click(add_disease);
-  var disease_input = $("<INPUT type='text' id='d_disease' size='30'></INPUT>");
-  var age_at_diagnosis = $("<SELECT id = 'd_age_at_diagnosis'>")
+  t.append(diseases_div);
+
+  // Now go to add section
+  var disease_select_div = $("<DIV>").empty();
+  var detailed_disease_select_div = $("<DIV>").empty();
+
+  var disease_select = $("<SELECT id='d_disease_select'>");
+  disease_select.append($("<OPTION></OPTION>"));
+  $.each(possible_diseases, function (name, details) {
+    disease_select.append($("<OPTION>" + name + "</OPTION>"));
+  });
+  disease_select.append($("<OPTION>Other</OPTION>"));
+  disease_select.change(function (event) {
+    var disease_choice = $(event.target).val()
+    console.log("[" + disease_choice + "]");
+    if (disease_choice == "Other") {
+      var disease_input = $("<INPUT type='text' id='d_disease' size='30'></INPUT>");
+      detailed_disease_select_div.empty().append("Type:").append(disease_input);
+    } else {
+      var detailed_disease_select = $("<SELECT id='d_detailed_disease_select'>");
+
+      var possible_detailed_diseases = possible_diseases[disease_choice]
+      detailed_disease_select.append($("<OPTION></OPTION>"));
+      for (var i=0;i<possible_detailed_diseases.length; i++) {
+        var detailed_disease = possible_detailed_diseases[i]["name"];
+        detailed_disease_select.append($("<OPTION>" + detailed_disease + "</OPTION>"));
+      }
+      detailed_disease_select_div.empty().append("Type:").append(detailed_disease_select);
+    }
+  });
+  disease_select_div.append("<br/>").append("Disease: ").append(disease_select).append(detailed_disease_select_div);
+
+  var age_of_diagnosis = $("<SELECT id = 'd_age_of_diagnosis'>")
     .append("<OPTION></OPTION>")
     .append("<OPTION>Unknown</OPTION>")
     .append("<OPTION>Pre-Birth</OPTION>")
@@ -548,17 +595,61 @@ function set_diseases_in_dialog(data, t) {
     .append("<OPTION>60 Years or older</OPTION>")
     .css("width","156px").css("height","21.5px");
 
-  t.append("<br/>").append("Disease: ").append(disease_input)
-    .append("<br/>Age at Diagnosis: ").append(age_at_diagnosis)
+  var add_button = $("<DIV><BUTTON>Add</BUTTON></DIV>").css("float", "right").click({data:data}, click_add_disease_button);
+  t.append("<br/>").append(disease_select_div)
+    .append("<br/>Age of Diagnosis: ").append(age_of_diagnosis)
     .append(add_button);
 }
 
-function add_disease() {
-  alert("adding");
+function click_add_disease_button(event) {
+  var d = event.data.data;
+  add_disease(d)
 }
 
+function add_disease(d) {
+
+  var disease_choice = $("#d_disease_select").val();
+  var detailed_disease_choice = $("#d_detailed_disease_select").val();
+  var disease_input = $("#d_disease").val();
+  var age_of_diagnosis = $("#d_age_of_diagnosis").val();
+
+  var disease = "Unknown";
+  if (disease_choice == "Other" || !detailed_disease_choice || detailed_disease_choice == "Other") {
+    disease = disease_input;
+  } else {
+    disease = detailed_disease_choice;
+  }
+  console.log(d["diseases"]);
+
+  d["diseases"][disease] = {};
+  d["diseases"][disease]["age_of_diagnosis"] = age_of_diagnosis;
+
+  $("#disease_table").empty();
+  set_diseases_in_dialog(d, $("#disease_table"));
+
+}
+
+function remove_disease(event) {
+  var d = event.data.data;
+  console.log($(this));
+
+  var disease = $(this).attr("disease");
+
+  console.log(disease);
+  console.log($(this).attr("age_of_diagnosis"));
+
+  if (disease) delete d["diseases"][disease];
+
+  $("#disease_table").empty();
+  set_diseases_in_dialog(d, $("#disease_table"));
+
+}
 function action_update_disease(dialog, person_id, data) {
 
+  if ($("#d_detailed_disease_select").val() || $("#d_disease").val() ) {
+    alert("Adding a disease");
+    add_disease(data);
+  }
   // demographics needs that object in the json
   if (!data['demographics']) {
     data['demographics'] = {};

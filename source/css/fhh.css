@@ -47,6 +47,23 @@
   padding:10px;
 }
 
+.fhh_turn_on_editing {
+  background-color:#FFC;
+  cursor:pointer;
+  border:1px solid grey;
+  position: relative;
+}
+.fhh_turn_on_editing::after{
+	content: "edit";
+  position: absolute;
+  top: 2;
+  right: 2;
+  z-index: 3;
+  font-size: 8px;
+  color: grey;
+  text-align: right;
+}
+
 .edit_dialog {
   font-size: small;
   background-color:EEE;
