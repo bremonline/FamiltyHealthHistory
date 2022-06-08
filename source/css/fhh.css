@@ -47,6 +47,11 @@
   padding:10px;
 }
 
+.fhh_turn_on_removing {
+  background-color:#FFC;
+  border:1px solid grey;
+}
+
 .fhh_turn_on_editing {
   background-color:#FFC;
   cursor:pointer;

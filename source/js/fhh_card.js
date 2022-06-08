@@ -22,18 +22,21 @@
 
     options: {
       data:[],
+      current_diseases:[],
       view:"simple"
     },
     display_element : function () {
+      console.log("Adding: (" + this.element.attr("relationship") + ") " + this.element.attr("person_id"));
 
       var d = this.options.data;
 
       if (this.options.view == "complex") {
-        console.log(this.element.attr("relationship") + ":" + this.element.attr("person_id"));
         var relationship_box = get_title_box(d, this.element.attr("relationship"), this.element.attr("person_id"));
         var stats_box = get_stats_box(d, this.element.attr("person_id"));
         var race_ethnicity_box = get_race_ethnicity_box(d);
         var disease_box = get_disease_box(d);
+
+        this.element.attr("id","card-" + this.element.attr("person_id"));
 
         this.element.empty()
           .append(relationship_box)
@@ -131,6 +134,7 @@ function get_stats_box (d, person_id) {
   var picture_box = $("<DIV><IMG src=" + icon + " height='64' alt='silhouette' /></DIV>");
   picture_box.addClass("fhh_picture_box");
 
+  if (!gender) gender = "&nbsp;";
   var stats_box = $("<DIV>" + gender + "<BR/>" + birthdate_age + "<BR/>" + height_str + "<BR/>" + weight_str + "</DIV>");
   stats_box.addClass("fhh_stats_box");
 
@@ -191,8 +195,6 @@ function get_disease_box (d) {
   }
 
   $.each( diseases, function( disease_name, info ) {
-    console.log(info["age_of_diagnosis"]);
-
     if (info['age_of_diagnosis']) {
       div.append( disease_name + " (" + info['age_of_diagnosis'] + ") <br/>" );
     } else {
@@ -214,30 +216,41 @@ function lock_clicked(event) {
     var d = event.data.data;
     var person_id = event.data.person_id;
 
-    console.log(event);
     var img = $(event.currentTarget).find("img");
+
+    var card = $("#card-" + person_id);
 
     if (img.attr("src") == "source/images/icon_lock.png") {
       img.attr("src", "source/images/icon_unlock.png");
-      $(event.currentTarget).closest(".fhh_title").first()
+
+
+      card.children().first()
         .next().addClass("fhh_turn_on_editing").children()
           .first().click({person_id:person_id, data:d}, picture_box_clicked)
           .next().click({person_id:person_id, data:d}, stats_box_clicked)
         .parent().next().addClass("fhh_turn_on_editing").click({person_id:person_id, data:d}, race_ethnicity_box_clicked)
         .next().addClass("fhh_turn_on_editing").click({person_id:person_id, data:d}, disease_box_clicked);
 
+
     } else if (img.attr("src") == "source/images/icon_unlock.png") {
       img.attr("src", "source/images/icon_lock.png");
-      $(event.currentTarget).closest(".fhh_title").first()
+      card.children().first()
         .next().removeClass("fhh_turn_on_editing").children()
           .first().unbind()
           .next().unbind()
         .parent().next().removeClass("fhh_turn_on_editing").unbind()
         .next().removeClass("fhh_turn_on_editing").unbind();
     }
-    console.log($(event.currentTarget).find("img") );
 
     event.stopPropagation();
+}
+
+function remove_person_button_clicked(event) {
+  alert("Removing: " + event.data.person_id);
+
+  d=event.data.data;
+  delete d;
+  console.log(event.data.data)
 }
 
 function picture_box_clicked(event) {
@@ -276,36 +289,20 @@ function race_ethnicity_box_clicked(event) {
 function disease_box_clicked(event) {
   var data = event.data.data;
   var person_id = event.data.person_id;
+  var current_diseases = {};
+  if (data["diseases"]) current_diseases = JSON.parse(JSON.stringify(data["diseases"]));
 
-  var d = build_dialog(action_update_disease, data, person_id);
+
+  var d = build_dialog(action_update_disease, data, person_id, current_diseases);
   var t = $("<TABLE id='disease_table'>");
   t.addClass("edit_dialog");
 
-  set_diseases_in_dialog(data, t);
+  set_diseases_in_dialog(current_diseases, t);
 
   d.append(t);
 }
 
-function edit_clicked(event) {
-  var data = event.data.data;
-
-  var d = build_dialog(action_update_person);
-  var t = $("<TABLE>");
-  t.addClass("edit_dialog");
-
-  set_full_name_in_dialog(data, t);
-  set_gender_in_dialog(data, t);
-  set_height_id_dialog(data, t);
-  set_weight_in_dialog(data, t);
-  set_age_in_dialog(data, t);
-  set_race_in_dialog(data, t);
-  set_ethnicity_in_dialog(data, t);
-
-  d.append(t);
-}
-
-function build_dialog(fn, data, person_id) {
-  console.log(person_id);
+function build_dialog(fn, data, person_id, additonal=null) {
   var d = $("<div></div>");
   d.dialog({
     modal:true,
@@ -318,8 +315,7 @@ function build_dialog(fn, data, person_id) {
         }
       }, {
         text: "Submit", click: function() {
-          console.log(event);
-          fn(d, person_id, data);
+          fn(d, person_id, data, additonal);
           $( this ).dialog( "close" );
           d.remove();
         }
@@ -528,18 +524,16 @@ function set_ethnicity_in_dialog(data, t) {
     .append($("<TD>").append(ethnicity_input));
 }
 
-function set_diseases_in_dialog(data, t) {
-  console.log(possible_diseases);
-
-  //List all diseases and remove button
+function set_diseases_in_dialog(diseases, t) {
+  //List all diseases with remove X
   var diseases_div = $("<DIV>").css("font-size", "10px");
 
-  if (data["diseases"]) {
-    $.each( data["diseases"], function( id, info ) {
-      remove_disease_button = $("<IMG src='source/images/icon_x.png' height='14' style='vertical-align:middle;' alt='Remove Disease' />");
+  if (diseases) {
+    $.each( diseases, function( id, info ) {
+      remove_disease_button = $("<IMG src='source/images/icon_X.png' height='14' style='vertical-align:middle;' alt='Remove Disease' />");
       remove_disease_button.attr("disease", id);
       remove_disease_button.attr("age_of_dianosis", info["age_of_diagnosis"]);
-      remove_disease_button.click({data:data}, remove_disease);
+      remove_disease_button.click({diseases:diseases}, remove_disease);
 
       if (info["age_of_diagnosis"]) {
         diseases_div.append(id + " (" + info["age_of_diagnosis"] + ")");
@@ -595,14 +589,14 @@ function set_diseases_in_dialog(data, t) {
     .append("<OPTION>60 Years or older</OPTION>")
     .css("width","156px").css("height","21.5px");
 
-  var add_button = $("<DIV><BUTTON>Add</BUTTON></DIV>").css("float", "right").click({data:data}, click_add_disease_button);
+  var add_button = $("<DIV><BUTTON>Add</BUTTON></DIV>").css("float", "right").click({diseases:diseases}, click_add_disease_button);
   t.append("<br/>").append(disease_select_div)
     .append("<br/>Age of Diagnosis: ").append(age_of_diagnosis)
     .append(add_button);
 }
 
 function click_add_disease_button(event) {
-  var d = event.data.data;
+  var d = event.data.diseases;
   add_disease(d)
 }
 
@@ -619,10 +613,10 @@ function add_disease(d) {
   } else {
     disease = detailed_disease_choice;
   }
-  console.log(d["diseases"]);
+  console.log(d);
 
-  d["diseases"][disease] = {};
-  d["diseases"][disease]["age_of_diagnosis"] = age_of_diagnosis;
+  d[disease] = {};
+  d[disease]["age_of_diagnosis"] = age_of_diagnosis;
 
   $("#disease_table").empty();
   set_diseases_in_dialog(d, $("#disease_table"));
@@ -630,24 +624,24 @@ function add_disease(d) {
 }
 
 function remove_disease(event) {
-  var d = event.data.data;
+  var d = event.data.diseases;
   console.log($(this));
 
   var disease = $(this).attr("disease");
 
-  console.log(disease);
+  console.log(d);
   console.log($(this).attr("age_of_diagnosis"));
 
-  if (disease) delete d["diseases"][disease];
+  if (disease && d[disease]) delete d[disease];
 
   $("#disease_table").empty();
   set_diseases_in_dialog(d, $("#disease_table"));
 
 }
-function action_update_disease(dialog, person_id, data) {
+function action_update_disease(dialog, person_id, data, current_diseases) {
+  data["diseases"] = current_diseases;
 
   if ($("#d_detailed_disease_select").val() || $("#d_disease").val() ) {
-    alert("Adding a disease");
     add_disease(data);
   }
   // demographics needs that object in the json
@@ -706,7 +700,6 @@ function action_update_stats(dialog, person_id, data) {
   var cm = parseInt(dialog.find("#d_cm").val());
   // Feet-inches takes precidence
   if (feet || inches) {
-    console.log((feet * 12) + inches);
     data['demographics']['height_in_inches'] = (feet * 12) + inches;
     delete data['demographics']['height_in_cm'];
   } else if (cm) {
@@ -731,11 +724,6 @@ function action_update_stats(dialog, person_id, data) {
   var age = parseInt(dialog.find("#d_age").val());
   var birthdate = dialog.find("#d_birthdate").val();
   var estimated_age = dialog.find("#d_estimated_age").val();
-
-  console.log(age_type);
-  console.log(age);
-  console.log(birthdate);
-  console.log(estimated_age);
 
   if (age_type && age_type == 'Age') {
     data['demographics']['age'] = age;
