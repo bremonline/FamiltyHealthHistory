@@ -84,9 +84,7 @@ $(document).ready(function() {
 function create_add_person_to_fhh_widget() {
   if (data && data["proband"] && data["people"][data["proband"]]) {
     var add_relative_button = $("<BUTTON>Add Relative</BUTTON>");
-    add_relative_button.click(function (event) {
-      alert("Adding Relative");
-    });
+    add_relative_button.click(add_relative_dialog);
     $("#add_person_to_fhh").empty().append(add_relative_button);
 
   } else {
@@ -154,6 +152,346 @@ function add_proband (event) {
   display_fhh(data["proband"], "complex");
   create_add_person_to_fhh_widget();
 }
+function add_relative_dialog (event) {
+  console.log("Adding Relative");
+  var add_relative_dialog = $("<DIV id='ar_add_relative_dialog'>");
+  var name_label = $("<LABEL>Name: </LABEL>");
+  name_label.attr("for", "ar_name");
+  var name_text = $("<INPUT type='text' id='ar_name'>");
+  add_relative_dialog.append(name_label).append(name_text).append("<br><br>");
+
+  var relationship_label = $("<LABEL>Relationship: </LABEL>");
+  relationship_label.attr("for", "ar_relative_select");
+  var relationship_select = $("<SELECT id='ar_relative_select'>");
+  relationship_select.append("<OPTION></OPTION>");
+  relationship_select.append("<OPTION>Brother</OPTION>");
+  relationship_select.append("<OPTION>Sister</OPTION>");
+  relationship_select.append("<OPTION>Son</OPTION>");
+  relationship_select.append("<OPTION>Daughter</OPTION>");
+  relationship_select.append("<OPTION>Uncle</OPTION>");
+  relationship_select.append("<OPTION>Aunt</OPTION>");
+  relationship_select.append("<OPTION>Grandson</OPTION>");
+  relationship_select.append("<OPTION>Granddaughter</OPTION>");
+  relationship_select.append("<OPTION>Cousin</OPTION>");
+  relationship_select.append("<OPTION>Nephew</OPTION>");
+  relationship_select.append("<OPTION>Niece</OPTION>");
+  relationship_select.append("<OPTION>Half Brother</OPTION>");
+  relationship_select.append("<OPTION>Half Sister</OPTION>");
+
+
+  relationship_select.on("change", add_parent_of_relative_select);
+
+  add_relative_dialog.append(relationship_label).append(relationship_select).append("<br><br>");
+  add_relative_dialog.append($("<DIV id='ar_choose_parent'>"));
+
+  add_relative_dialog.dialog({
+    autoOpen: true,
+    position: {my:"center top", at:"center top"},
+    modal:true,
+    title: "Add Relative",
+    buttons: {
+        "Add New Relative": action_add_relative,
+        Cancel: function() {
+           add_relative_dialog.dialog( "close" );
+           $("#ar_add_relative_dialog").remove();
+        }
+      }
+  });
+
+}
+
+function add_parent_of_relative_select() {
+  var proband_id = data["proband"];
+  var father_id = data["people"][proband_id]["father"];
+  var mother_id = data["people"][proband_id]["mother"];
+
+  var new_relative_relationship = $("#ar_relative_select").val();
+
+  // if Son, Daughter, Brother or Sister, then No need to know related Parent
+  if (new_relative_relationship == "Son" || new_relative_relationship == "Daughter"
+    || new_relative_relationship == "Brother" || new_relative_relationship == "Sister") { return; }
+
+  var select_common_relative = $("<SELECT id='ar_select_common_relative'>");
+  $("#ar_choose_parent").append(select_common_relative);
+
+  if (new_relative_relationship == "Grandson" || new_relative_relationship == "Granddaughter") {
+    var children = data["people"][proband_id]["children"];
+    children.forEach(function(person_id) {
+      var name = data["people"][person_id]["name"];
+      var option = $("<OPTION>" + name + "</OPTION>").val(person_id);
+      select_common_relative.append(option);
+    });
+    $("#ar_choose_parent").prepend("Who is the parent: ");
+  }
+  if (new_relative_relationship == "Uncle" || new_relative_relationship == "Aunt") {
+    var paternal_option = $("<OPTION>Paternal</OPTION>").val("Paternal");
+    var maternal_option = $("<OPTION>Maternal</OPTION>").val("Maternal");
+    select_common_relative.append(paternal_option).append(maternal_option);
+    $("#ar_choose_parent").prepend("Which Side: ");
+
+  }
+  if (new_relative_relationship == "Cousin") {
+    $("#ar_choose_parent").prepend("Who is the Parent: ");
+    var full_uncles_aunts = get_uncles_aunts();
+    full_uncles_aunts.forEach(function(person_id) {
+      var name = data["people"][person_id]["name"];
+      var option = $("<OPTION>" + name + "</OPTION>").val(person_id);
+      select_common_relative.append(option);
+    });
+  }
+  if (new_relative_relationship == "Nephew" || new_relative_relationship == "Niece") {
+    $("#ar_choose_parent").prepend("Who is the parent: ");
+    var full_siblings = get_full_siblings();
+    console.log(full_siblings);
+    full_siblings.forEach(function(person_id) {
+      var sibling_name = data["people"][person_id]["name"];
+      var option = $("<OPTION>" + sibling_name + "</OPTION>").val(person_id);
+      select_common_relative.append(option);
+    });
+
+  }
+  if (new_relative_relationship == "Half Brother" || new_relative_relationship == "Half Sister") {
+    var paternal_option = $("<OPTION>Paternal</OPTION>").val("Paternal");
+    var maternal_option = $("<OPTION>Maternal</OPTION>").val("Maternal");
+    select_common_relative.append(paternal_option).append(maternal_option);
+    $("#ar_choose_parent").prepend("Which Side: ");
+  }
+
+}
+
+function action_add_relative(event) {
+  var new_relative_parent_id = $("#ar_common_relative").val();
+  var new_relative_relationship = $("#ar_relative_select").val();
+  console.log ("Adding a new [" + new_relative_relationship + "] the child of: " + new_relative_parent_id);
+
+  if (new_relative_relationship == "Son" || new_relative_relationship == "Daughter") {
+    action_add_child();
+  } else if (new_relative_relationship == "Brother" || new_relative_relationship == "Sister") {
+    action_add_sibling();
+  } else if (new_relative_relationship == "Nephew" || new_relative_relationship == "Niece") {
+    action_add_nephew_niece();
+  } else if (new_relative_relationship == "Grandson" || new_relative_relationship == "Granddaughter") {
+    action_add_grandchild();
+  } else if (new_relative_relationship == "Uncle" || new_relative_relationship == "Aunt") {
+    action_add_uncle_aunt();
+  } else if (new_relative_relationship == "Cousin") {
+    action_add_cousin();
+  } else if (new_relative_relationship == "Half Brother" || new_relative_relationship == "Half Sister")  {
+    action_add_half_sibling();
+  }
+
+  $("#ar_add_relative_dialog").remove();
+  display_fhh(data["proband"], "simple");
+
+}
+
+function action_add_child() {
+  var name = $("#ar_name").val();
+  var proband = data["proband"];
+  console.log(name);
+
+  var id = crypto.randomUUID();
+  // Add the ID to the proband's Children
+  if (!data["people"][proband]["children"]) data["people"][proband]["children"] = [id];
+  else data["people"][proband]["children"].push(id);
+
+  // Now create a new person_name
+  data["people"][id] = {"name":name};
+  data["people"][id]["demographics"] = {};
+
+  if ($("#ar_relative_select").val() == "Son") {
+    data["people"][id]["relationship"] = "Son";
+    data["people"][id]["demographics"]["gender"] = "Male";
+  }
+  if ($("#ar_relative_select").val() == "Daughter") {
+    data["people"][id]["relationship"] = "Daughter";
+    data["people"][id]["demographics"]["gender"] = "Female";
+  }
+}
+
+function action_add_sibling() {
+  var name = $("#ar_name").val();
+  var proband = data["proband"];
+  console.log(name);
+
+  var id = crypto.randomUUID();
+
+  // Add the ID to the proband Parents's Children
+  var father_id = data["people"][proband]["father"];
+  var mother_id = data["people"][proband]["mother"];
+
+
+  if (!data["people"][father_id]["children"]) data["people"][father_id]["children"] = [id];
+  else data["people"][father_id]["children"].push(id);
+  if (!data["people"][mother_id]["children"]) data["people"][mother_id]["children"] = [id];
+  else data["people"][mother_id]["children"].push(id);
+
+  // Now create a new person_name
+  data["people"][id] = {"name":name};
+  data["people"][id]["demographics"] = {};
+
+  if ($("#ar_relative_select").val() == "Brother") {
+    data["people"][id]["relationship"] = "Brother";
+    data["people"][id]["demographics"]["gender"] = "Male";
+  }
+  if ($("#ar_relative_select").val() == "Sister") {
+    data["people"][id]["relationship"] = "Sister";
+    data["people"][id]["demographics"]["gender"] = "Female";
+  }
+}
+
+function action_add_nephew_niece() {
+  var name = $("#ar_name").val();
+  var proband = data["proband"];
+  var new_relative_parent = $("#ar_select_common_relative").val();
+  console.log(name);
+  console.log(new_relative_parent);
+
+  var id = crypto.randomUUID();
+
+  // Add the ID to the proband Parents's Children
+  if (!data["people"][new_relative_parent]["children"]) data["people"][new_relative_parent]["children"] = [id];
+  else data["people"][new_relative_parent]["children"].push(id);
+
+  // Now create a new person_name
+  data["people"][id] = {"name":name};
+  data["people"][id]["demographics"] = {};
+
+  if ($("#ar_relative_select").val() == "Nephew") {
+    data["people"][id]["relationship"] = "Nephew";
+    data["people"][id]["demographics"]["gender"] = "Male";
+  }
+  if ($("#ar_relative_select").val() == "Niece") {
+    data["people"][id]["relationship"] = "Niece";
+    data["people"][id]["demographics"]["gender"] = "Female";
+  }
+}
+
+function action_add_grandchild() {
+  var name = $("#ar_name").val();
+  var proband = data["proband"];
+  var new_relative_parent = $("#ar_select_common_relative").val();
+  console.log(name);
+  console.log(new_relative_parent);
+
+  var id = crypto.randomUUID();
+
+  // Add the ID to the proband Parents's Children
+  if (!data["people"][new_relative_parent]["children"]) data["people"][new_relative_parent]["children"] = [id];
+  else data["people"][new_relative_parent]["children"].push(id);
+
+  // Now create a new person_name
+  data["people"][id] = {"name":name};
+  data["people"][id]["demographics"] = {};
+
+  if ($("#ar_relative_select").val() == "Grandson") {
+    data["people"][id]["relationship"] = "Grandson";
+    data["people"][id]["demographics"]["gender"] = "Male";
+  }
+  if ($("#ar_relative_select").val() == "Granddaughter") {
+    data["people"][id]["relationship"] = "Granddaughter";
+    data["people"][id]["demographics"]["gender"] = "Female";
+  }
+}
+
+// Note: For Unlce/Aunt we specific Paternal/Maternal and figure it out from there
+function action_add_uncle_aunt() {
+  var name = $("#ar_name").val();
+  var proband = data["proband"];
+  var new_relative_parent = $("#ar_select_common_relative").val();
+  console.log(name);
+  console.log(new_relative_parent);
+
+  var id = crypto.randomUUID();
+
+  // Add the ID to the proband Parents's Children
+  var parent_id;
+  if (new_relative_parent == "Paternal") {
+    parent_id = data["people"][proband]["father"];
+  } else {
+    parent_id = data["people"][proband]["mother"];
+  }
+  var grandfather_id = data["people"][parent_id]["father"];
+  var grandmother_id = data["people"][parent_id]["mother"];
+
+  if (!data["people"][grandfather_id]["children"]) data["people"][grandfather_id]["children"] = [id];
+  else data["people"][grandfather_id]["children"].push(id);
+  if (!data["people"][grandmother_id]["children"]) data["people"][grandmother_id]["children"] = [id];
+  else data["people"][grandmother_id]["children"].push(id);
+
+  // Now create a new person_name
+  data["people"][id] = {"name":name};
+  data["people"][id]["demographics"] = {};
+
+  if ($("#ar_relative_select").val() == "Uncle") {
+    data["people"][id]["relationship"] = "Uncle";
+    data["people"][id]["demographics"]["gender"] = "Male";
+  }
+  if ($("#ar_relative_select").val() == "Aunt") {
+    data["people"][id]["relationship"] = "Aunt";
+    data["people"][id]["demographics"]["gender"] = "Female";
+  }
+}
+
+function action_add_cousin() {
+  var name = $("#ar_name").val();
+  var proband = data["proband"];
+  var new_relative_parent = $("#ar_select_common_relative").val();
+  console.log(name);
+  console.log(new_relative_parent);
+
+  var id = crypto.randomUUID();
+
+  // Add the ID to the proband Parents's Children
+  if (!data["people"][new_relative_parent]["children"]) data["people"][new_relative_parent]["children"] = [id];
+  else data["people"][new_relative_parent]["children"].push(id);
+
+  // Now create a new person_name
+  data["people"][id] = {"name":name};
+  data["people"][id]["demographics"] = {};
+
+  data["people"][id]["relationship"] = "Cousin";
+  data["people"][id]["demographics"]["gender"] = "Unknown";
+
+}
+
+function action_add_half_sibling() {
+  var name = $("#ar_name").val();
+  var proband = data["proband"];
+  var new_relative_parent = $("#ar_select_common_relative").val();
+  console.log(name);
+  console.log(new_relative_parent);
+
+  var id = crypto.randomUUID();
+
+  // Add the ID to the proband Parents's Children
+  var parent_id;
+  if (new_relative_parent == "Paternal") {
+    parent_id = data["people"][proband]["father"];
+  } else {
+    parent_id = data["people"][proband]["mother"];
+  }
+
+  if (!data["people"][parent_id]["children"]) data["people"][parent_id]["children"] = [id];
+  else data["people"][parent_id]["children"].push(id);
+
+  // Now create a new person_name
+  data["people"][id] = {"name":name};
+  data["people"][id]["demographics"] = {};
+
+  if ($("#ar_relative_select").val() == "Half Brother") {
+    data["people"][id]["relationship"] = "Half Brother";
+    data["people"][id]["demographics"]["gender"] = "Male";
+  }
+  if ($("#ar_relative_select").val() == "Half Sister") {
+    data["people"][id]["relationship"] = "Half Sister";
+    data["people"][id]["demographics"]["gender"] = "Female";
+  }
+}
+
+
+
+//////////////////////////
 
 function create_remove_person_from_fhh_widget() {
   $("#remove_person_from_fhh").empty();
@@ -212,6 +550,26 @@ function display_fhh(id, view) {
   $("#fhh_data").append(mother_div);
   data["people"][mother_id]["relationship"] = "Mother";
 
+  // Make Grandparents Cards
+  var paternal_grandfather_id = data["people"][father_id]["father"];
+  var paternal_grandfather_div = $("<div></div>").addClass("fhh_card").attr("person_id", paternal_grandfather_id).attr("relationship", "Paternal Grandfather");
+  $("#fhh_data").append(paternal_grandfather_div);
+  data["people"][paternal_grandfather_id]["relationship"] = "Paternal Grandfather";
+
+  var paternal_grandmother_id = data["people"][father_id]["mother"];
+  var paternal_grandmother_div = $("<div></div>").addClass("fhh_card").attr("person_id", paternal_grandmother_id).attr("relationship", "Paternal Grandmother");
+  $("#fhh_data").append(paternal_grandmother_div);
+  data["people"][paternal_grandmother_id]["relationship"] = "Paternal Grandmother";
+
+  var maternal_grandfather_id = data["people"][mother_id]["father"];
+  var maternal_grandfather_div = $("<div></div>").addClass("fhh_card").attr("person_id", maternal_grandfather_id).attr("relationship", "Maternal Grandfather");
+  $("#fhh_data").append(maternal_grandfather_div);
+  data["people"][maternal_grandfather_id]["relationship"] = "Maternal Grandfather";
+
+  var maternal_grandmother_id = data["people"][mother_id]["mother"];
+  var maternal_grandmother_div = $("<div></div>").addClass("fhh_card").attr("person_id", maternal_grandmother_id).attr("relationship", "Maternal Grandmother");
+  $("#fhh_data").append(maternal_grandmother_div);
+  data["people"][maternal_grandmother_id]["relationship"] = "Maternal Grandmother";
 
   // Make Children Cards
   var children = data["people"][proband_id]["children"];
@@ -223,20 +581,51 @@ function display_fhh(id, view) {
     });
   }
   // Make Sibling Cards
-  var full_siblings = get_full_siblings(data, proband_id, father_id, mother_id);
+  var full_siblings = get_full_siblings();
   full_siblings.forEach(function(person_id) {
     var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id).attr("relationship", "Sibling");
     $("#fhh_data").append(person_div);
     data["people"][person_id]["relationship"] = "Sibling";
+  });
 
+  // Make nephews_and_nieces cards
+  var nephews_and_nieces = get_nephews_and_nieces();
+  nephews_and_nieces.forEach(function(person_id) {
+    var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id).attr("relationship", "Nephew or Niece");
+    $("#fhh_data").append(person_div);
+    data["people"][person_id]["relationship"] = "Nephew or Niece";
+  });
 
-    // Make nephews_and_nieces cards
-    var nephews_and_nieces = get_nephews_and_nieces(data, proband_id, father_id, mother_id);
-    nephews_and_nieces.forEach(function(person_id) {
-      var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id).attr("relationship", "Nephew or Niece");
-      $("#fhh_data").append(person_div);
-      data["people"][person_id]["relationship"] = "Nephew or Niece";
-    });
+  // Make Grandchildren cards
+  var grandchildren = get_grandchildren();
+  grandchildren.forEach(function(person_id) {
+    var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id).attr("relationship", "Grandchild");
+    $("#fhh_data").append(person_div);
+    data["people"][person_id]["relationship"] = "Grandchild";
+  });
+
+  // Make Uncle/Aunt cards
+  var uncle_aunts = get_uncles_aunts();
+  uncle_aunts.forEach(function(person_id) {
+    var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id).attr("relationship", "Uncle/Aunt");
+    $("#fhh_data").append(person_div);
+    data["people"][person_id]["relationship"] = "Uncle/Aunt";
+  });
+
+  // Make Cousins cards
+  var cousins = get_cousins();
+  cousins.forEach(function(person_id) {
+    var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id).attr("relationship", "Cousin");
+    $("#fhh_data").append(person_div);
+    data["people"][person_id]["relationship"] = "Uncle/Aunt";
+  });
+
+  // Make Half-Sibling cards
+  var halfsiblings = get_half_siblings();
+  halfsiblings.forEach(function(person_id) {
+    var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id).attr("relationship", "Half Sibling");
+    $("#fhh_data").append(person_div);
+    data["people"][person_id]["relationship"] = "Half Sibling";
   });
 
 // This is where we define what the cards look like
@@ -256,13 +645,17 @@ function display_fhh(id, view) {
 }
 
 
-function get_full_siblings(d, proband_id, father_id, mother_id) {
+function get_full_siblings() {
+  var proband_id = data["proband"];
+  var father_id = data["people"][proband_id]["father"];
+  var mother_id = data["people"][proband_id]["mother"];
+
   var fathers_children = [];
   var mothers_children = [];
 
-  if (d["people"][father_id] && d["people"][father_id]["children"])
+  if (data["people"][father_id] && data["people"][father_id]["children"])
     fathers_children = data["people"][father_id]["children"];
-  if (d["people"][mother_id] != null && d["people"][mother_id]["children"] != null)
+  if (data["people"][mother_id] != null && data["people"][mother_id]["children"] != null)
     mothers_children = data["people"][mother_id]["children"];
 
   var common = $(fathers_children).filter(mothers_children);
@@ -271,18 +664,96 @@ function get_full_siblings(d, proband_id, father_id, mother_id) {
   $.each(common, function(i,v) {
     if (v != proband_id) siblings.push(v);
   });
+  console.log(siblings);
   return (siblings);
 }
 
-function get_nephews_and_nieces(d, proband_id, father_id, mother_id) {
+function get_nephews_and_nieces() {
   var nephews_and_nieces = [];
 
-  var full_siblings = get_full_siblings(data, proband_id, father_id, mother_id);
+  var full_siblings = get_full_siblings();
   full_siblings.forEach(function(person_id) {
     var children = data["people"][person_id]["children"];
     if (children) nephews_and_nieces = nephews_and_nieces.concat(children);
   });
   return nephews_and_nieces;
+}
+
+function get_uncles_aunts() {
+  var proband_id = data["proband"];
+  var father_id = data["people"][proband_id]["father"];
+  var mother_id = data["people"][proband_id]["mother"];
+
+  var paternal_grandfather_id = data["people"][father_id]["father"];
+  var maternal_grandfather_id = data["people"][mother_id]["father"];
+
+
+  var paternal_uncles_and_aunts = data["people"][paternal_grandfather_id]["children"];
+  var maternal_uncles_and_aunts = data["people"][maternal_grandfather_id]["children"];
+
+  var uncles_and_aunts = paternal_uncles_and_aunts.concat(maternal_uncles_and_aunts);
+
+  // Have to remove parents;
+  removeElement(uncles_and_aunts, father_id);
+  removeElement(uncles_and_aunts, mother_id);
+
+  return uncles_and_aunts;
+}
+
+function get_grandchildren() {
+  var proband_id = data["proband"];
+  var grandchildren = [];
+
+  var children = data["people"][proband_id]["children"];
+  if (children) {
+    children.forEach(function(person_id) {
+      var gc = data["people"][person_id]["children"];
+      if (gc && gc.length > 0) grandchildren = grandchildren.concat(gc);
+    });
+  }
+  console.log(grandchildren);
+  return grandchildren;
+}
+
+function get_cousins() {
+  var proband_id = data["proband"];
+  var cousins = [];
+
+  var uncles_aunts = get_uncles_aunts();
+  if (uncles_aunts) {
+    uncles_aunts.forEach(function(person_id) {
+      var c = data["people"][person_id]["children"];
+      if (c && c.length > 0) cousins = cousins.concat(c);
+    });
+  }
+  console.log(cousins);
+  return cousins;
+}
+
+function get_half_siblings() {
+  var proband_id = data["proband"];
+  var father_id = data["people"][proband_id]["father"];
+  var mother_id = data["people"][proband_id]["mother"];
+
+  var fathers_children = [];
+  var mothers_children = [];
+
+  if (data["people"][father_id] && data["people"][father_id]["children"])
+    fathers_children = data["people"][father_id]["children"];
+  if (data["people"][mother_id] != null && data["people"][mother_id]["children"] != null)
+    mothers_children = data["people"][mother_id]["children"];
+
+  var halfsiblings = [...$(fathers_children).not(mothers_children), ...$(mothers_children).not(fathers_children)];
+  console.log(halfsiblings);
+  return (halfsiblings);
+}
+
+/// Convenience Functions
+function removeElement(array, elem) {
+    var index = array.indexOf(elem);
+    if (index > -1) {
+        array.splice(index, 1);
+    }
 }
 
 function exportJson(data, exportName){

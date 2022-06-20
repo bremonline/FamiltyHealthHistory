@@ -26,7 +26,6 @@
       view:"simple"
     },
     display_element : function () {
-      console.log("Adding: (" + this.element.attr("relationship") + ") " + this.element.attr("person_id"));
 
       var d = this.options.data;
 
