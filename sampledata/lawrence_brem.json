@@ -1,66 +1,261 @@
 {
-  "proband": "0beb2fc5-aae1-458d-a94a-4dab4e1b8ae1",
-  "people":
-    {
-      "0beb2fc5-aae1-458d-a94a-4dab4e1b8ae1": {
-        "name":"Lawrence Brem",
-        "demographics": {
-          "first_name":"Lawrence",
-          "nickname":"Larry",
-          "middle_name":"Mark",
-          "last_name":"Brem",
-          "gender": "Male",
-          "age":53,
-          "weight_in_pounds":225,
-          "height_in_inches":69,
-          "birthdate":"11/19/1968",
-          "races" : ["White", "Black"],
-          "ethnicities" : ["Not Hispanic or Latino", "Ashkenazi Jewish"]
-        },
-        "diseases": {
-          "Pre-diabetes": [{
-            "age_of_diagnosis": 51,
-            "concept_codes": {"ICD-10":"R73.01"}
-          }],
-          "Myopia": [{
-            "age_of_diagnosis": 14
-          }]
-        },
-        "mother":"216f5c83-ec39-49b5-96de-ff17202a1271",
-        "father":"0b029d11-87b1-4f14-80f2-b5f59c71d2c2",
-        "children": [
-          "941a6910-efc2-4858-b532-eeead065817d", "ad3501c5-1218-404d-b8a7-21350fab94bb"
+  "proband": "7d45fa4d-6cf6-4a5a-a59b-019bece796a2",
+  "people": {
+    "7d45fa4d-6cf6-4a5a-a59b-019bece796a2": {
+      "name": "Lawrence Brem",
+      "father": "afbc6654-378e-448d-a4dc-b837e33645c3",
+      "mother": "4d7c6fbe-7312-46dd-bf97-c45af3ca7600",
+      "relationship": "Proband",
+      "demographics": {
+        "gender": "Male",
+        "height_in_inches": 69,
+        "weight_in_pounds": "220",
+        "birthdate": "11/20/1968",
+        "races": [
+          "white"
+        ],
+        "ethnicities": [
+          "jewish"
         ]
       },
-    "216f5c83-ec39-49b5-96de-ff17202a1271" : {"name":"Myrna Brem",
-      "demographics":{"gender":"Female","estimated_age":"60 Years or older","races":["Asian", "Native Hawaiian or Other Pacific Islander"]},
-      "diseases": [{"Diabetes":[{"age_of_diagnosis":34}] }],
+      "diseases": {
+        "Pre-Diabetes": {
+          "age_of_diagnosis": "50-59 Years"
+        },
+        "Type 2 Diabetes": {
+          "age_of_diagnosis": "50-59 Years"
+        }
+      },
       "children": [
-        "8aa2e0a5-046d-4f1d-9dc1-bdd7557c41a5", "67780242-bb3f-4491-8e0e-2dd7d966b234",
-        "0beb2fc5-aae1-458d-a94a-4dab4e1b8ae1", "7df67623-5d72-4d76-910e-1a63c5c282a2"
+        "e3be4328-a29a-401a-a4fc-832701d11ffe",
+        "6ea6f302-6112-43a0-b5ed-58d61c3413d8"
       ]
     },
-    "0b029d11-87b1-4f14-80f2-b5f59c71d2c2" : {"name":"Marshall Brem",
-      "demographics":{"gender":"Male", "height_in_cm":180, "weight_in_kilograms": 95, "birthdate":"09/02/1936"},
+    "afbc6654-378e-448d-a4dc-b837e33645c3": {
+      "name": "Marshall Brem",
+      "demographics": {
+        "gender": "Male",
+        "height_in_inches": 70,
+        "birthdate": "09/02/1936",
+        "races": [
+          "white"
+        ],
+        "ethnicities": [
+          "jewish"
+        ]
+      },
       "children": [
-      "8aa2e0a5-046d-4f1d-9dc1-bdd7557c41a5", "67780242-bb3f-4491-8e0e-2dd7d966b234",
-      "0beb2fc5-aae1-458d-a94a-4dab4e1b8ae1", "7df67623-5d72-4d76-910e-1a63c5c282a2"
-    ]},
-    "941a6910-efc2-4858-b532-eeead065817d" : {"name":"Samantha Brem",
-      "demographics":{"gender":"Female", "birthdate_in_MM/DD/YYYY":"04/03/2002"}},
-    "ad3501c5-1218-404d-b8a7-21350fab94bb" : {"name":"Miriam Brem", "demographics":{"gender":"female"}},
-    "8aa2e0a5-046d-4f1d-9dc1-bdd7557c41a5" : {"name":"Jeffrey Brem", "children": [
-      "afc2500b-da93-4af6-bd65-9fe51dde0b20", "ff6c75b6-36fd-4eb0-86ef-61fb8ca03045",
-      "afabd695-8eb7-4be4-8e5f-7fc280065bb7"
-    ]},
-    "67780242-bb3f-4491-8e0e-2dd7d966b234" : {"name":"Steven Brem"},
-    "7df67623-5d72-4d76-910e-1a63c5c282a2" : {"name":"Pamela Brem", "children": [
-      "f580331a-6ca3-44b8-85f6-076df1a53e63", "332be438-bde9-4bc2-a098-f2a1fd6839fb"
-    ]},
-    "afc2500b-da93-4af6-bd65-9fe51dde0b20" : {"name":"Amanda Brem"},
-    "ff6c75b6-36fd-4eb0-86ef-61fb8ca03045" : {"name":"Julia Brem"},
-    "afabd695-8eb7-4be4-8e5f-7fc280065bb7" : {"name":"Sarah Brem"},
-    "f580331a-6ca3-44b8-85f6-076df1a53e63" : {"name":"Samuel Pardoe"},
-    "332be438-bde9-4bc2-a098-f2a1fd6839fb" : {"name":"Aiden Pardoe"}
+        "7d45fa4d-6cf6-4a5a-a59b-019bece796a2",
+        "80274a24-a0ad-4cd7-b7c7-0bd3135ea0f1",
+        "4cf139e7-97e9-4970-a51d-ff22f875f214",
+        "585b09e4-1279-4fe1-8479-56e16c8b0106"
+      ],
+      "father": "687ce3d5-260b-429d-a871-b745c1a3a699",
+      "mother": "a6f19b97-4373-48b6-bd56-b7bc07322d23"
+    },
+    "4d7c6fbe-7312-46dd-bf97-c45af3ca7600": {
+      "name": "Myrna Brem",
+      "demographics": {
+        "gender": "Female",
+        "height_in_inches": 65,
+        "birthdate": "06/04/1938",
+        "races": [
+          "white"
+        ],
+        "ethnicities": [
+          "jewish"
+        ]
+      },
+      "children": [
+        "7d45fa4d-6cf6-4a5a-a59b-019bece796a2",
+        "80274a24-a0ad-4cd7-b7c7-0bd3135ea0f1",
+        "4cf139e7-97e9-4970-a51d-ff22f875f214",
+        "585b09e4-1279-4fe1-8479-56e16c8b0106"
+      ],
+      "father": "774e9cac-6238-4917-9ec8-f7318c048f18",
+      "mother": "cb529bd4-a340-4388-a68d-eb87529268ba"
+    },
+    "687ce3d5-260b-429d-a871-b745c1a3a699": {
+      "name": "James Brem",
+      "demographics": {
+        "gender": "Male",
+        "estimated_age": "60 Years or older"
+      },
+      "children": [
+        "afbc6654-378e-448d-a4dc-b837e33645c3",
+        "813b40a8-c68a-4c78-9bfd-1342a9ba4d3f"
+      ]
+    },
+    "a6f19b97-4373-48b6-bd56-b7bc07322d23": {
+      "name": "Sadie Brem",
+      "demographics": {
+        "gender": "Female"
+      },
+      "children": [
+        "afbc6654-378e-448d-a4dc-b837e33645c3",
+        "813b40a8-c68a-4c78-9bfd-1342a9ba4d3f"
+      ]
+    },
+    "774e9cac-6238-4917-9ec8-f7318c048f18": {
+      "name": "Samuel Levetin",
+      "demographics": {
+        "gender": "Male"
+      },
+      "children": [
+        "4d7c6fbe-7312-46dd-bf97-c45af3ca7600",
+        "ac0cdda4-000c-4e78-aeec-b47976ad7c0f"
+      ]
+    },
+    "cb529bd4-a340-4388-a68d-eb87529268ba": {
+      "name": "Jean Levetin",
+      "demographics": {
+        "gender": "Female"
+      },
+      "children": [
+        "4d7c6fbe-7312-46dd-bf97-c45af3ca7600",
+        "ac0cdda4-000c-4e78-aeec-b47976ad7c0f"
+      ]
+    },
+    "80274a24-a0ad-4cd7-b7c7-0bd3135ea0f1": {
+      "name": "Jeffrey Brem",
+      "father": "afbc6654-378e-448d-a4dc-b837e33645c3",
+      "mother": "4d7c6fbe-7312-46dd-bf97-c45af3ca7600",
+      "demographics": {
+        "gender": "Male"
+      },
+      "relationship": "Brother",
+      "children": [
+        "82b0cae9-8988-4737-8a79-53d5ed7e4972",
+        "26f776d4-860f-4adf-85db-2fd15e71240e",
+        "d1b6e4ac-b272-4949-a2c6-53281807dff6"
+      ]
+    },
+    "4cf139e7-97e9-4970-a51d-ff22f875f214": {
+      "name": "Steven Brem",
+      "father": "afbc6654-378e-448d-a4dc-b837e33645c3",
+      "mother": "4d7c6fbe-7312-46dd-bf97-c45af3ca7600",
+      "demographics": {
+        "gender": "Male"
+      },
+      "relationship": "Brother"
+    },
+    "585b09e4-1279-4fe1-8479-56e16c8b0106": {
+      "name": "Pamela Pardoe",
+      "father": "afbc6654-378e-448d-a4dc-b837e33645c3",
+      "mother": "4d7c6fbe-7312-46dd-bf97-c45af3ca7600",
+      "demographics": {
+        "gender": "Female"
+      },
+      "relationship": "Sister",
+      "children": [
+        "62960353-190b-472a-b7ba-ca94f5e39d4b",
+        "7cd37676-c7c6-4e2b-92d9-fd7510808fcd"
+      ]
+    },
+    "e3be4328-a29a-401a-a4fc-832701d11ffe": {
+      "name": "Samantha Brem",
+      "demographics": {
+        "gender": "Female"
+      },
+      "father": "7d45fa4d-6cf6-4a5a-a59b-019bece796a2",
+      "relationship": "Daughter"
+    },
+    "6ea6f302-6112-43a0-b5ed-58d61c3413d8": {
+      "name": "Miriam Brem",
+      "demographics": {
+        "gender": "Female"
+      },
+      "father": "7d45fa4d-6cf6-4a5a-a59b-019bece796a2",
+      "relationship": "Daughter"
+    },
+    "82b0cae9-8988-4737-8a79-53d5ed7e4972": {
+      "name": "Amanda Brem",
+      "demographics": {
+        "gender": "Female"
+      },
+      "father": "80274a24-a0ad-4cd7-b7c7-0bd3135ea0f1",
+      "relationship": "Niece"
+    },
+    "26f776d4-860f-4adf-85db-2fd15e71240e": {
+      "name": "Julia Brem",
+      "demographics": {
+        "gender": "Female"
+      },
+      "father": "80274a24-a0ad-4cd7-b7c7-0bd3135ea0f1",
+      "relationship": "Niece"
+    },
+    "d1b6e4ac-b272-4949-a2c6-53281807dff6": {
+      "name": "Sarah Brem",
+      "demographics": {
+        "gender": "Female"
+      },
+      "father": "80274a24-a0ad-4cd7-b7c7-0bd3135ea0f1",
+      "relationship": "Niece"
+    },
+    "62960353-190b-472a-b7ba-ca94f5e39d4b": {
+      "name": "Samuel Pardoe",
+      "demographics": {
+        "gender": "Male"
+      },
+      "mother": "585b09e4-1279-4fe1-8479-56e16c8b0106",
+      "relationship": "Nephew"
+    },
+    "7cd37676-c7c6-4e2b-92d9-fd7510808fcd": {
+      "name": "Aiden Pardoe",
+      "demographics": {
+        "gender": "Male"
+      },
+      "mother": "585b09e4-1279-4fe1-8479-56e16c8b0106",
+      "relationship": "Nephew"
+    },
+    "813b40a8-c68a-4c78-9bfd-1342a9ba4d3f": {
+      "name": "Phyliss Shepard",
+      "demographics": {
+        "gender": "Female"
+      },
+      "father": "687ce3d5-260b-429d-a871-b745c1a3a699",
+      "mother": "a6f19b97-4373-48b6-bd56-b7bc07322d23",
+      "relationship": "Aunt",
+      "children": [
+        "482f42ef-028d-4f05-9615-2ae096f2e08a",
+        "947639f1-ad82-4fd9-bdf5-64d3f0b67e60"
+      ]
+    },
+    "ac0cdda4-000c-4e78-aeec-b47976ad7c0f": {
+      "name": "Judy Goldman",
+      "demographics": {
+        "gender": "Female"
+      },
+      "father": "774e9cac-6238-4917-9ec8-f7318c048f18",
+      "mother": "cb529bd4-a340-4388-a68d-eb87529268ba",
+      "relationship": "Aunt",
+      "children": [
+        "9d1b82ed-c1c3-4535-bea1-b31c2a3da09f"
+      ]
+    },
+    "482f42ef-028d-4f05-9615-2ae096f2e08a": {
+      "name": "Nancy Heilman",
+      "demographics": {
+        "gender": "Female"
+      },
+      "mother": "813b40a8-c68a-4c78-9bfd-1342a9ba4d3f",
+      "relationship": "Cousin"
+    },
+    "947639f1-ad82-4fd9-bdf5-64d3f0b67e60": {
+      "name": "Alan Shepard",
+      "demographics": {
+        "gender": "Male"
+      },
+      "mother": "813b40a8-c68a-4c78-9bfd-1342a9ba4d3f",
+      "relationship": "Cousin"
+    },
+    "9d1b82ed-c1c3-4535-bea1-b31c2a3da09f": {
+      "name": "Alysa O'hara",
+      "demographics": {
+        "gender": "Female"
+      },
+      "mother": "ac0cdda4-000c-4e78-aeec-b47976ad7c0f",
+      "relationship": "Cousin"
+    }
   }
 }

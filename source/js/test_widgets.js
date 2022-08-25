@@ -2,8 +2,8 @@
 var data = {};
 
 $(document).ready(function() {
-  // executes when HTML-Document is loaded and DOM is ready
 
+//  Functions from the top NAVBAR Buttons
   $("#log").click(function() {
     console.log(data);
   });
@@ -15,7 +15,7 @@ $(document).ready(function() {
 
   $("#load").click(function() {
     data = JSON.parse(localStorage.getItem('fhh_data'));
-    display_fhh(data["proband"], "simple");
+    display_fhh();
     create_add_person_to_fhh_widget();
     create_remove_person_from_fhh_widget();
   });
@@ -35,7 +35,7 @@ $(document).ready(function() {
     reader.readAsText(e.target.files[0]);
     reader.onload = function(e) {
       data = JSON.parse(e.target.result);
-      display_fhh(data["proband"], "complex");
+      display_fhh();
       create_add_person_to_fhh_widget();
       create_remove_person_from_fhh_widget();
     };
@@ -62,7 +62,7 @@ $(document).ready(function() {
             var url = $("#d_pick_url_input").val()
             $.getJSON(url, function (json) {
               data = json;
-              display_fhh(data["proband"], "complex");
+              display_fhh();
             });
           }
         }
@@ -72,14 +72,44 @@ $(document).ready(function() {
   });
 
   $("#clear").click(function() {
+    if (data && data != {} && data['proband']) {
+      var proband = data['proband'];
+      if (data['people'][proband] && data['people'][proband]['name'] && data['people'][proband]['name'] != 'Proband') {
+        console.log(data['people'][proband]['name']);
+        var confirmed = confirm("This will delete all data.  Is this okay?");
+        if (!confirmed) return;
+      }
+    }
+
     data = {};
-    display_fhh(data["proband"], "simple");
     create_add_person_to_fhh_widget();
+    add_proband();
+    display_fhh();
     $("#remove_person_from_fhh").empty();
   });
 
+  // Expand and collapse_all
+  $("#expand_all").click(function () {
+    $(".fhh_card .fhh_picture_stats_box").show();
+    $(".fhh_card .fhh_race_ethnicity_box").show();
+    $(".fhh_card .fhh_disease_box").show();
+
+  });
+
+  $("#collapse_all").click(function () {
+    $(".fhh_card .fhh_picture_stats_box").hide();
+    $(".fhh_card .fhh_race_ethnicity_box").hide();
+    $(".fhh_card .fhh_disease_box").hide();
+  });
+
+  $("#add_relative").click(add_relative_dialog);
+  $("#remove_relative").click(remove_person_dialog);
+
+  add_proband();
   create_add_person_to_fhh_widget();
 });
+
+//  These functions are used for the Add Proband and Add Relative Button
 
 function create_add_person_to_fhh_widget() {
   if (data && data["proband"] && data["people"][data["proband"]]) {
@@ -92,7 +122,8 @@ function create_add_person_to_fhh_widget() {
     add_proband_button.click(add_proband);
     $("#add_person_to_fhh").empty().append(add_proband_button);
   }
- }
+}
+
 function add_proband (event) {
   // Completely clear the data;
   data = {};
@@ -108,6 +139,8 @@ function add_proband (event) {
   data["people"][id]["father"] = father_id;
   data["people"][father_id]= {};
   data["people"][father_id]["name"] = "Father";
+  data["people"][father_id]["demographics"] = {};
+  data["people"][father_id]["demographics"]["gender"] = "Male";
   data["people"][father_id]["children"] = [];
   data["people"][father_id]["children"][0] = id;
 
@@ -115,6 +148,8 @@ function add_proband (event) {
   data["people"][id]["mother"] = mother_id;
   data["people"][mother_id] = {}
   data["people"][mother_id]["name"] = "Mother";
+  data["people"][mother_id]["demographics"] = {};
+  data["people"][mother_id]["demographics"]["gender"] = "Female";
   data["people"][mother_id]["children"] = [];
   data["people"][mother_id]["children"][0] = id;
 
@@ -123,6 +158,8 @@ function add_proband (event) {
   data["people"][father_id]["father"] = paternal_grandfather_id;
   data["people"][paternal_grandfather_id] = {}
   data["people"][paternal_grandfather_id]["name"] = "Paternal Grandfather";
+  data["people"][paternal_grandfather_id]["demographics"] = {};
+  data["people"][paternal_grandfather_id]["demographics"]["gender"] = "Male";
   data["people"][paternal_grandfather_id]["children"] = [];
   data["people"][paternal_grandfather_id]["children"][0] = father_id;
 
@@ -130,6 +167,8 @@ function add_proband (event) {
   data["people"][father_id]["mother"] = paternal_grandmother_id;
   data["people"][paternal_grandmother_id] = {}
   data["people"][paternal_grandmother_id]["name"] = "Paternal Grandmother";
+  data["people"][paternal_grandmother_id]["demographics"] = {};
+  data["people"][paternal_grandmother_id]["demographics"]["gender"] = "Female";
   data["people"][paternal_grandmother_id]["children"] = [];
   data["people"][paternal_grandmother_id]["children"][0] = father_id;
 
@@ -138,6 +177,8 @@ function add_proband (event) {
   data["people"][mother_id]["father"] = maternal_grandfather_id;
   data["people"][maternal_grandfather_id] = {}
   data["people"][maternal_grandfather_id]["name"] = "Maternal Grandfather";
+  data["people"][maternal_grandfather_id]["demographics"] = {};
+  data["people"][maternal_grandfather_id]["demographics"]["gender"] = "Male";
   data["people"][maternal_grandfather_id]["children"] = [];
   data["people"][maternal_grandfather_id]["children"][0] = mother_id;
 
@@ -145,13 +186,15 @@ function add_proband (event) {
   data["people"][maternal_grandmother_id] = {}
   data["people"][mother_id]["mother"] = maternal_grandmother_id;
   data["people"][maternal_grandmother_id]["name"] = "Maternal Grandmother";
+  data["people"][maternal_grandmother_id]["demographics"] = {};
+  data["people"][maternal_grandmother_id]["demographics"]["gender"] = "Female";
   data["people"][maternal_grandmother_id]["children"] = [];
   data["people"][maternal_grandmother_id]["children"][0] = mother_id;
 
-
-  display_fhh(data["proband"], "complex");
+  display_fhh();
   create_add_person_to_fhh_widget();
 }
+
 function add_relative_dialog (event) {
   console.log("Adding Relative");
   var add_relative_dialog = $("<DIV id='ar_add_relative_dialog'>");
@@ -242,7 +285,6 @@ function add_parent_of_relative_select() {
   if (new_relative_relationship == "Nephew" || new_relative_relationship == "Niece") {
     $("#ar_choose_parent").prepend("Who is the parent: ");
     var full_siblings = get_full_siblings();
-    console.log(full_siblings);
     full_siblings.forEach(function(person_id) {
       var sibling_name = data["people"][person_id]["name"];
       var option = $("<OPTION>" + sibling_name + "</OPTION>").val(person_id);
@@ -281,7 +323,7 @@ function action_add_relative(event) {
   }
 
   $("#ar_add_relative_dialog").remove();
-  display_fhh(data["proband"], "simple");
+  display_fhh();
 
 }
 
@@ -298,6 +340,10 @@ function action_add_child() {
   // Now create a new person_name
   data["people"][id] = {"name":name};
   data["people"][id]["demographics"] = {};
+  // If proband is Male, then set the Father, else if Female set the mother
+  console.log(data["people"][proband]["demographics"]["gender"]);
+  if (data["people"][proband]["demographics"]["gender"] == "Male") data["people"][id]["father"] = proband;
+  else if (data["people"][proband]["demographics"]["gender"] == "Female") data["people"][id]["mother"] = proband;
 
   if ($("#ar_relative_select").val() == "Son") {
     data["people"][id]["relationship"] = "Son";
@@ -307,6 +353,8 @@ function action_add_child() {
     data["people"][id]["relationship"] = "Daughter";
     data["people"][id]["demographics"]["gender"] = "Female";
   }
+  console.log(data["people"][id]);
+
 }
 
 function action_add_sibling() {
@@ -326,8 +374,8 @@ function action_add_sibling() {
   if (!data["people"][mother_id]["children"]) data["people"][mother_id]["children"] = [id];
   else data["people"][mother_id]["children"].push(id);
 
-  // Now create a new person_name
-  data["people"][id] = {"name":name};
+  // Now create a new person_name, also add same father and mother
+  data["people"][id] = {"name":name, "father": father_id, "mother":mother_id};
   data["people"][id]["demographics"] = {};
 
   if ($("#ar_relative_select").val() == "Brother") {
@@ -356,6 +404,10 @@ function action_add_nephew_niece() {
   // Now create a new person_name
   data["people"][id] = {"name":name};
   data["people"][id]["demographics"] = {};
+  // If new_relative_parent is Male, then set the Father, else if Female set the mother
+  if (data["people"][new_relative_parent]["demographics"]["gender"] == "Male") data["people"][id]["father"] = new_relative_parent;
+  else if (data["people"][new_relative_parent]["demographics"]["gender"] == "Female") data["people"][id]["mother"] = new_relative_parent;
+
 
   if ($("#ar_relative_select").val() == "Nephew") {
     data["people"][id]["relationship"] = "Nephew";
@@ -383,6 +435,9 @@ function action_add_grandchild() {
   // Now create a new person_name
   data["people"][id] = {"name":name};
   data["people"][id]["demographics"] = {};
+  // If new_relative_parent is Male, then set the Father, else if Female set the mother
+  if (data["people"][new_relative_parent]["demographics"]["gender"] == "Male") data["people"][id]["father"] = new_relative_parent;
+  else if (data["people"][new_relative_parent]["demographics"]["gender"] == "Female") data["people"][id]["mother"] = new_relative_parent;
 
   if ($("#ar_relative_select").val() == "Grandson") {
     data["people"][id]["relationship"] = "Grandson";
@@ -422,6 +477,10 @@ function action_add_uncle_aunt() {
   // Now create a new person_name
   data["people"][id] = {"name":name};
   data["people"][id]["demographics"] = {};
+  // If new_relative_parent is Male, then set the Father, else if Female set the mother
+  data["people"][id]["father"] = grandfather_id;
+  data["people"][id]["mother"] = grandmother_id;
+
 
   if ($("#ar_relative_select").val() == "Uncle") {
     data["people"][id]["relationship"] = "Uncle";
@@ -449,6 +508,9 @@ function action_add_cousin() {
   // Now create a new person_name
   data["people"][id] = {"name":name};
   data["people"][id]["demographics"] = {};
+  // If new_relative_parent is Male, then set the Father, else if Female set the mother
+  if (data["people"][new_relative_parent]["demographics"]["gender"] == "Male") data["people"][id]["father"] = new_relative_parent;
+  else if (data["people"][new_relative_parent]["demographics"]["gender"] == "Female") data["people"][id]["mother"] = new_relative_parent;
 
   data["people"][id]["relationship"] = "Cousin";
   data["people"][id]["demographics"]["gender"] = "Unknown";
@@ -478,6 +540,9 @@ function action_add_half_sibling() {
   // Now create a new person_name
   data["people"][id] = {"name":name};
   data["people"][id]["demographics"] = {};
+  // If Paternal, then set the Father, else Maternal set the mother
+  if (new_relative_parent == "Paternal") data["people"][id]["father"] = new_relative_parent;
+  else if (new_relative_parent == "Maternal") data["people"][id]["mother"] = new_relative_parent;
 
   if ($("#ar_relative_select").val() == "Half Brother") {
     data["people"][id]["relationship"] = "Half Brother";
@@ -494,6 +559,83 @@ function action_add_half_sibling() {
 //////////////////////////
 
 function create_remove_person_from_fhh_widget() {
+    var remove_relative_button = $("<BUTTON>Remove Relative</BUTTON>");
+    remove_relative_button.click(remove_person_dialog);
+    $("#remove_person_from_fhh").empty().append(remove_relative_button);
+}
+
+function remove_person_dialog() {
+  console.log("Removing Relative");
+  var remove_relative_dialog = $("<DIV id='rr_remove_relative_dialog'>");
+  var remove_relative_label = $("<LABEL>Relative to Remove: </LABEL>");
+  remove_relative_label.attr("for", "rr_remove_person_select");
+
+
+  var relative_select = $("<SELECT id='rr_remove_person_select' />").append("<OPTION></OPTION>");
+
+  var people = data["people"];
+  $.each(people, function(person_id, details) {
+    var option = $("<OPTION>" + details["name"] + "</OPTION>").attr("value", person_id);
+    if (details["relationship"] != "Proband"
+      && details["relationship"] != "Father"
+      && details["relationship"] != "Mother"
+      && details["relationship"] != "Paternal Grandfather"
+      && details["relationship"] != "Paternal Grandmother"
+      && details["relationship"] != "Maternal Grandfather"
+      && details["relationship"] != "Maternal Grandmother")
+    {
+      relative_select.append(option);
+    }
+  });
+
+  remove_relative_dialog.append(remove_relative_label).append(relative_select);
+
+  remove_relative_dialog.dialog({
+    autoOpen: true,
+    position: {my:"center top", at:"center top"},
+    modal:true,
+    title: "Remove Relative",
+    buttons: {
+        "Remove Relative": action_remove_relative,
+        Cancel: function() {
+           remove_relative_dialog.dialog( "close" );
+           $("#rr_remove_relative_dialog").remove();
+        }
+      }
+  });
+}
+
+function action_remove_relative(event) {
+  person_id = $("#rr_remove_person_select").val();
+  if (!data["people"][person_id]["children"] || data["people"][person_id]["children"].length == 0) {
+    var name = data["people"][person_id]["name"];
+    // Must also remove the id from the children of both father and mother
+    if (data["people"][person_id]["father"]) {
+      var father_id = data["people"][person_id]["father"];
+      removeElement(data["people"][father_id]["children"], person_id);
+    }
+    if (data["people"][person_id]["mother"]) {
+      var mother_id = data["people"][person_id]["mother"];
+      removeElement(data["people"][mother_id]["children"], person_id);
+    }
+
+    delete data["people"][person_id];
+    var card_to_remove = $(".fhh_card[person_id='" + person_id + "']");
+    console.log(card_to_remove);
+    console.log($(".fhh_card").length)
+
+
+    card_to_remove.remove();
+    console.log($(".fhh_card").length)
+    alert (name + " was removed");
+  } else {
+    alert ("Cannot Remove Person with active Childred, remove them first");
+  }
+  $("#rr_remove_relative_dialog").remove();
+  display_fhh();
+}
+
+function create_remove_person_from_fhh_widget_old() {
   $("#remove_person_from_fhh").empty();
   var relative_select = $("<SELECT id='remove_person_select' />").append("<OPTION></OPTION>");
 
@@ -516,6 +658,7 @@ function create_remove_person_from_fhh_widget() {
     person_id = $("#remove_person_select").val();
     if (!data["people"][person_id]["children"] || data["people"][person_id]["children"].length == 0) {
       var name = data["people"][person_id]["name"]
+
       delete data["people"][person_id];
       var card_to_remove = $(".fhh_card[person_id='" + person_id + "']");
       console.log(card_to_remove);
@@ -528,7 +671,7 @@ function create_remove_person_from_fhh_widget() {
   $("#remove_person_from_fhh").append(relative_select).append(remove_button);
 }
 
-function display_fhh(id, view) {
+function display_fhh() {
   $("#fhh_data").empty();
   if (!data  || !data["people"] || !data["proband"]) return; // Need a minimum in order to process at all
 
@@ -543,94 +686,89 @@ function display_fhh(id, view) {
   var father_id = data["people"][proband_id]["father"];
   var father_div = $("<div></div>").addClass("fhh_card").attr("person_id", father_id).attr("relationship", "Father");
   $("#fhh_data").append(father_div);
-  data["people"][father_id]["relationship"] = "Father";
 
   var mother_id = data["people"][proband_id]["mother"];
   var mother_div = $("<div></div>").addClass("fhh_card").attr("person_id", mother_id).attr("relationship", "Mother");
   $("#fhh_data").append(mother_div);
-  data["people"][mother_id]["relationship"] = "Mother";
 
   // Make Grandparents Cards
   var paternal_grandfather_id = data["people"][father_id]["father"];
   var paternal_grandfather_div = $("<div></div>").addClass("fhh_card").attr("person_id", paternal_grandfather_id).attr("relationship", "Paternal Grandfather");
   $("#fhh_data").append(paternal_grandfather_div);
-  data["people"][paternal_grandfather_id]["relationship"] = "Paternal Grandfather";
 
   var paternal_grandmother_id = data["people"][father_id]["mother"];
   var paternal_grandmother_div = $("<div></div>").addClass("fhh_card").attr("person_id", paternal_grandmother_id).attr("relationship", "Paternal Grandmother");
   $("#fhh_data").append(paternal_grandmother_div);
-  data["people"][paternal_grandmother_id]["relationship"] = "Paternal Grandmother";
 
   var maternal_grandfather_id = data["people"][mother_id]["father"];
   var maternal_grandfather_div = $("<div></div>").addClass("fhh_card").attr("person_id", maternal_grandfather_id).attr("relationship", "Maternal Grandfather");
   $("#fhh_data").append(maternal_grandfather_div);
-  data["people"][maternal_grandfather_id]["relationship"] = "Maternal Grandfather";
 
   var maternal_grandmother_id = data["people"][mother_id]["mother"];
   var maternal_grandmother_div = $("<div></div>").addClass("fhh_card").attr("person_id", maternal_grandmother_id).attr("relationship", "Maternal Grandmother");
   $("#fhh_data").append(maternal_grandmother_div);
-  data["people"][maternal_grandmother_id]["relationship"] = "Maternal Grandmother";
 
   // Make Children Cards
   var children = data["people"][proband_id]["children"];
   if (children) {
     children.forEach(function(person_id) {
-      var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id).attr("relationship", "Child");
+      var relationship  = get_relationship(person_id, "Son", "Daughter", "Child");
+      var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id).attr("relationship", relationship);
       $("#fhh_data").append(person_div);
-      data["people"][person_id]["relationship"] = "Child";
     });
   }
   // Make Sibling Cards
   var full_siblings = get_full_siblings();
   full_siblings.forEach(function(person_id) {
-    var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id).attr("relationship", "Sibling");
+    var relationship  = get_relationship(person_id, "Brother", "Sister", "Sibling");
+    var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id).attr("relationship", relationship);
     $("#fhh_data").append(person_div);
-    data["people"][person_id]["relationship"] = "Sibling";
   });
 
   // Make nephews_and_nieces cards
   var nephews_and_nieces = get_nephews_and_nieces();
   nephews_and_nieces.forEach(function(person_id) {
-    var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id).attr("relationship", "Nephew or Niece");
+    var relationship  = get_relationship(person_id, "Nephew", "Niece", "Nephew/Niece");
+    var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id).attr("relationship", relationship);
     $("#fhh_data").append(person_div);
-    data["people"][person_id]["relationship"] = "Nephew or Niece";
   });
 
   // Make Grandchildren cards
   var grandchildren = get_grandchildren();
   grandchildren.forEach(function(person_id) {
-    var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id).attr("relationship", "Grandchild");
+    var relationship  = get_relationship(person_id, "Grandson", "Granddaughter", "Grandchild");
+    var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id).attr("relationship", relationship);
     $("#fhh_data").append(person_div);
-    data["people"][person_id]["relationship"] = "Grandchild";
   });
 
   // Make Uncle/Aunt cards
   var uncle_aunts = get_uncles_aunts();
   uncle_aunts.forEach(function(person_id) {
-    var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id).attr("relationship", "Uncle/Aunt");
+    var relationship  = get_relationship(person_id, "Uncle", "Aunt", "Uncle/Aunt");
+    var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id).attr("relationship", relationship);
     $("#fhh_data").append(person_div);
-    data["people"][person_id]["relationship"] = "Uncle/Aunt";
   });
 
   // Make Cousins cards
   var cousins = get_cousins();
   cousins.forEach(function(person_id) {
-    var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id).attr("relationship", "Cousin");
+    console.log(person_id);
+    var relationship = "Cousin";
+    var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id).attr("relationship", relationship);
     $("#fhh_data").append(person_div);
-    data["people"][person_id]["relationship"] = "Uncle/Aunt";
   });
 
   // Make Half-Sibling cards
   var halfsiblings = get_half_siblings();
   halfsiblings.forEach(function(person_id) {
-    var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id).attr("relationship", "Half Sibling");
+    var relationship  = get_relationship(person_id, "Half Brother", "Half Sister", "Half Sibling");
+    var person_div =  $("<div></div>").addClass("fhh_card").attr("person_id", person_id).attr("relationship", relationship);
     $("#fhh_data").append(person_div);
-    data["people"][person_id]["relationship"] = "Half Sibling";
   });
 
 // This is where we define what the cards look like
   $(".fhh_card").card({
-    view:"complex"
+//    view:"complex"
   });
 
 // This is where we add the data to all cards based on the person_id of the card
@@ -664,7 +802,6 @@ function get_full_siblings() {
   $.each(common, function(i,v) {
     if (v != proband_id) siblings.push(v);
   });
-  console.log(siblings);
   return (siblings);
 }
 
@@ -711,7 +848,6 @@ function get_grandchildren() {
       if (gc && gc.length > 0) grandchildren = grandchildren.concat(gc);
     });
   }
-  console.log(grandchildren);
   return grandchildren;
 }
 
@@ -726,7 +862,6 @@ function get_cousins() {
       if (c && c.length > 0) cousins = cousins.concat(c);
     });
   }
-  console.log(cousins);
   return cousins;
 }
 
@@ -744,11 +879,23 @@ function get_half_siblings() {
     mothers_children = data["people"][mother_id]["children"];
 
   var halfsiblings = [...$(fathers_children).not(mothers_children), ...$(mothers_children).not(fathers_children)];
-  console.log(halfsiblings);
   return (halfsiblings);
 }
 
 /// Convenience Functions
+function get_relationship(id, male, female, unknown) {
+  if (get_gender(id) == "Male" ) return (male);
+  else if (get_gender(id) == "Female" ) return (female);
+  else return (unknown);
+}
+
+function get_gender(id) {
+  if (!data["people"][id]) return "Unknown";
+  if (!data["people"][id]["demographics"]) return "Unknown";
+  if (!data["people"][id]["demographics"]["gender"]) return "Unknown";
+  return data["people"][id]["demographics"]["gender"];
+}
+
 function removeElement(array, elem) {
     var index = array.indexOf(elem);
     if (index > -1) {

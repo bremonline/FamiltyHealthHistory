@@ -29,21 +29,27 @@
 
       var d = this.options.data;
 
+      var relationship_box = get_title_box(d, this.element.attr("relationship"), this.element.attr("person_id"));
+      var stats_box = get_stats_box(d, this.element.attr("person_id"));
+      var race_ethnicity_box = get_race_ethnicity_box(d);
+      var disease_box = get_disease_box(d);
+
+      this.element.attr("id","card-" + this.element.attr("person_id"));
+
+      this.element.empty()
+        .append(relationship_box)
+        .append(stats_box)
+        .append(race_ethnicity_box)
+        .append(disease_box);
+
       if (this.options.view == "complex") {
-        var relationship_box = get_title_box(d, this.element.attr("relationship"), this.element.attr("person_id"));
-        var stats_box = get_stats_box(d, this.element.attr("person_id"));
-        var race_ethnicity_box = get_race_ethnicity_box(d);
-        var disease_box = get_disease_box(d);
-
-        this.element.attr("id","card-" + this.element.attr("person_id"));
-
-        this.element.empty()
-          .append(relationship_box)
-          .append(stats_box)
-          .append(race_ethnicity_box)
-          .append(disease_box);
+        stats_box.show();
+        race_ethnicity_box.show();
+        disease_box.show();
       } else {
-         this.element.text(d["name"]);
+        stats_box.hide();
+        race_ethnicity_box.hide();
+        disease_box.hide();
       }
 
     },
@@ -100,8 +106,6 @@ function get_title_box(d, relationship, person_id) {
 
 function get_stats_box (d, person_id) {
 // Adding picture box here
-
-
   var name = get_name(d);
   var gender = get_demographics_value(d, "gender");
   if (!gender) gender = "&nbsp;"
@@ -144,8 +148,6 @@ function get_stats_box (d, person_id) {
 }
 
 function get_race_ethnicity_box(d) {
-
-
   var races = get_demographics_value(d, "races");
   var race_string = "";
   if (races && races.length > 0) {
@@ -253,7 +255,18 @@ function remove_person_button_clicked(event) {
 }
 
 function picture_box_clicked(event) {
-  alert ("P");
+  var imageChooser = $("<INPUT type='file'>");
+  console.log(event);
+
+  imageChooser.change(function(e) {
+    var reader = new FileReader();
+    reader.readAsDataURL(e.target.files[0]);
+    reader.onload = function(e) {
+      $(event.target).attr("src", reader.result);
+    };
+  });
+  imageChooser.click();
+
 }
 
 function stats_box_clicked(event) {
@@ -268,7 +281,7 @@ function stats_box_clicked(event) {
   set_gender_in_dialog(data, t);
   set_height_id_dialog(data, t);
   set_weight_in_dialog(data, t);
-  set_age_in_dialog(data, t);
+  set_age_in_dialog(data, t, 'd_', "Birthdate", "Age", "Est. Age");
 
   d.append(t);
 }
@@ -285,6 +298,7 @@ function race_ethnicity_box_clicked(event) {
 
   d.append(t);
 }
+
 function disease_box_clicked(event) {
   var data = event.data.data;
   var person_id = event.data.person_id;
@@ -295,33 +309,31 @@ function disease_box_clicked(event) {
   var d = build_dialog(action_update_disease, data, person_id, current_diseases);
   var t = $("<TABLE id='disease_table'>");
   t.addClass("edit_dialog");
-
   set_diseases_in_dialog(current_diseases, t);
-
   d.append(t);
-}
 
-function build_dialog(fn, data, person_id, additonal=null) {
-  var d = $("<div></div>");
-  d.dialog({
-    modal:true,
-    position: {my:"center top", at:"center top"},
-    buttons: [
-      {
-        text: "Cancel", click: function() {
-          $( this ).dialog( "close" );
-          d.remove();
-        }
-      }, {
-        text: "Submit", click: function() {
-          fn(d, person_id, data, additonal);
-          $( this ).dialog( "close" );
-          d.remove();
-        }
-      }
-    ]
+  d.append("<br>");
+  var death_div = $("<DIV style='font-size:small'>");
+  d.append(death_div);
+  var label = $("<LABEL for='d_alive_flag'>Is this person alive: </LABEL>");
+  var alive_flag_select = $("<SELECT id='d_alive_flag'>");
+  alive_flag_select.change(function (e) {
+    var alive = $("#d_alive_flag").val();
+    if (alive == "Yes") {
+      // Do nothing
+    } else if (alive == "No") {
+      var death_select = add_disease_select("Cause of Death:", "d_death_select", "d_detailed_death_select");
+      var age_table = $("<TABLE>").css("font-size", "small");
+
+      set_age_in_dialog(data, age_table, "death_", "Date of Death", "Age at Death", "Est. Age at Death");
+      death_div.append(death_select);
+      death_div.append(age_table);
+
+    }
   });
-    return d;
+  alive_flag_select.append("<OPTION></OPTION>").append("<OPTION>Yes</OPTION>").append("<OPTION>No</OPTION>")
+  death_div.append(label).append(alive_flag_select);
+
 }
 
 function set_full_name_in_dialog(data, t) {
@@ -404,14 +416,20 @@ function set_weight_in_dialog(data, t) {
     .append($("<TD>").append(weight_input_div));
 }
 
-function set_age_in_dialog(data, t) {
-  var age_type = $("<SELECT id='d_age_type'><OPTION></OPTION><OPTION>Birthdate</OPTION><OPTION>Age</OPTION><OPTION>Est. Age</OPTION></SELECT>");
-  var age_input = $("<INPUT type='text' id='d_age' size='3'></INPUT>")
-  var age_input_div = $("<DIV id='d_age_input_div'>").append(age_input).append(" years").hide();
-  var birthdate_input = $("<INPUT type='text' id='d_birthdate' size='10'></INPUT>").hide();
+//Need to generalize this
+function set_age_in_dialog(data, t, prefix, date_name, age_name, est_age_name) {
+  var age_type = $("<SELECT>")
+    .attr("id", prefix + "age_type")
+    .append("<OPTION></OPTION>")
+    .append("<OPTION value='date'>" + date_name + "</OPTION>")
+    .append("<OPTION value='age'>" + age_name + "</OPTION>")
+    .append("<OPTION value='est_age'>" + est_age_name + "</OPTION>");
+  var age_input = $("<INPUT type='text' size='3'></INPUT>").attr("id", prefix + "age");
+  var age_input_div = $("<DIV>").attr("id", prefix + "age_input_div").append(age_input).append(" years").hide();
+  var birthdate_input = $("<INPUT type='text' size='10'></INPUT>").attr("id", prefix + "birthdate").hide();
   birthdate_input.datepicker({changeMonth:true, changeYear:true, yearRange:"-120:+1"});
 
-  var estimated_age_input = $("<SELECT id = 'd_estimated_age'>")
+  var estimated_age_input = $("<SELECT>").attr("id", prefix + "estimated_age")
     .append("<OPTION></OPTION>")
     .append("<OPTION>Unknown</OPTION>")
     .append("<OPTION>Pre-Birth</OPTION>")
@@ -425,10 +443,8 @@ function set_age_in_dialog(data, t) {
     .append("<OPTION>60 Years or older</OPTION>")
     .hide();
 
-  var age_div = $("<DIV id='d_age_div'>");
+  var age_div = $("<DIV>").attr("id", prefix + "age_div");
   age_div.append(age_input_div).append(birthdate_input).append(estimated_age_input);
-
-
 
   var age = "";
   var birthdate = "";
@@ -437,52 +453,55 @@ function set_age_in_dialog(data, t) {
   if (data["demographics"] && data["demographics"]["birthdate"]) birthdate = data["demographics"]["birthdate"];
   if (data["demographics"] && data["demographics"]["estimated_age"]) estimated_age = data["demographics"]["estimated_age"];
 
-
   if (age) {
     age_input_div.show();
     birthdate_input.hide();
     estimated_age_input.hide();
     age_input.val(age)
-    age_type.val("Age");
+    age_type.val("age");
   } else if (birthdate) {
     age_input_div.hide();
     birthdate_input.show();
     estimated_age_input.hide();
     birthdate_input.val(birthdate);
-    age_type.val("Birthdate");
+    age_type.val("date");
   } else if (estimated_age) {
     age_input_div.hide();
     birthdate_input.hide();
     estimated_age_input.show();
     estimated_age_input.val(estimated_age);
-    age_type.val("Est. Age");
+    age_type.val("est_age");
   }
 
-  age_type.change(change_age_type);
+  age_type.change(function () {
+    change_age_type(prefix);
+  });
 
+  console.log (t);
   t.append("<TR>")
     .append($("<TD>").append(age_type))
     .append($("<TD>").append(age_div));
 }
 
-function change_age_type() {
-  var age_type = $("#d_age_type").val()
-  if (age_type && age_type == "Age") {
-    $("#d_age_input_div").show();
-    $("#d_birthdate").hide();
-    $("#d_estimated_age").hide();
-  } else if (age_type && age_type == "Birthdate") {
-      $("#d_age_input_div").hide();
-      $("#d_birthdate").show();
-      $("#d_estimated_age").hide();
-    } else if (age_type && age_type == "Est. Age") {
-      $("#d_age_input_div").hide();
-      $("#d_birthdate").hide();
-      $("#d_estimated_age").show();
+function change_age_type(prefix) {
+  console.log(prefix)
+  var age_type = $("#" + prefix + "age_type").val()
+  if (age_type && age_type == "age") {
+    $("#" + prefix + "age_input_div").show();
+    $("#" + prefix + "birthdate").hide();
+    $("#" + prefix + "estimated_age").hide();
+  } else if (age_type && age_type == "date") {
+      $("#" + prefix + "age_input_div").hide();
+      $("#" + prefix + "birthdate").show();
+      $("#" + prefix + "estimated_age").hide();
+    } else if (age_type && age_type == "est_age") {
+      $("#" + prefix + "age_input_div").hide();
+      $("#" + prefix + "birthdate").hide();
+      $("#" + prefix + "estimated_age").show();
     } else {
-      $("#d_age_input_div").hide();
-      $("#d_birthdate").hide();
-      $("#d_estimated_age").hide();
+      $("#" + prefix + "age_input_div").hide();
+      $("#" + prefix + "birthdate").hide();
+      $("#" + prefix + "estimated_age").hide();
     }
 }
 
@@ -525,7 +544,7 @@ function set_ethnicity_in_dialog(data, t) {
 
 function set_diseases_in_dialog(diseases, t) {
   //List all diseases with remove X
-  var diseases_div = $("<DIV>").css("font-size", "10px");
+  var diseases_div = $("<DIV>").css("font-size", "12px");
 
   if (diseases) {
     $.each( diseases, function( id, info ) {
@@ -544,35 +563,7 @@ function set_diseases_in_dialog(diseases, t) {
   }
   t.append(diseases_div);
 
-  // Now go to add section
-  var disease_select_div = $("<DIV>").empty();
-  var detailed_disease_select_div = $("<DIV>").empty();
-
-  var disease_select = $("<SELECT id='d_disease_select'>");
-  disease_select.append($("<OPTION></OPTION>"));
-  $.each(possible_diseases, function (name, details) {
-    disease_select.append($("<OPTION>" + name + "</OPTION>"));
-  });
-  disease_select.append($("<OPTION>Other</OPTION>"));
-  disease_select.change(function (event) {
-    var disease_choice = $(event.target).val()
-    console.log("[" + disease_choice + "]");
-    if (disease_choice == "Other") {
-      var disease_input = $("<INPUT type='text' id='d_disease' size='30'></INPUT>");
-      detailed_disease_select_div.empty().append("Type:").append(disease_input);
-    } else {
-      var detailed_disease_select = $("<SELECT id='d_detailed_disease_select'>");
-
-      var possible_detailed_diseases = possible_diseases[disease_choice]
-      detailed_disease_select.append($("<OPTION></OPTION>"));
-      for (var i=0;i<possible_detailed_diseases.length; i++) {
-        var detailed_disease = possible_detailed_diseases[i]["name"];
-        detailed_disease_select.append($("<OPTION>" + detailed_disease + "</OPTION>"));
-      }
-      detailed_disease_select_div.empty().append("Type:").append(detailed_disease_select);
-    }
-  });
-  disease_select_div.append("<br/>").append("Disease: ").append(disease_select).append(detailed_disease_select_div);
+  disease_select_div = add_disease_select("Disease:", "d_disease_select", "d_detailed_disease_select");
 
   var age_of_diagnosis = $("<SELECT id = 'd_age_of_diagnosis'>")
     .append("<OPTION></OPTION>")
@@ -593,7 +584,39 @@ function set_diseases_in_dialog(diseases, t) {
     .append("<br/>Age of Diagnosis: ").append(age_of_diagnosis)
     .append(add_button);
 }
+function add_disease_select(label, disease_select_id, detailed_disease_select_id) {
+  // Now go to add section
+  var disease_select_div = $("<DIV>").empty();
+  var detailed_disease_select_div = $("<DIV>").empty();
 
+  var disease_select = $("<SELECT id='" + disease_select_id + "'>");
+  disease_select.append($("<OPTION></OPTION>"));
+  $.each(possible_diseases, function (name, details) {
+    disease_select.append($("<OPTION>" + name + "</OPTION>"));
+  });
+  disease_select.append($("<OPTION>Other</OPTION>"));
+  disease_select.change(function (event) {
+    var disease_choice = $(event.target).val()
+    console.log("[" + disease_choice + "]");
+    if (disease_choice == "Other") {
+      var disease_input = $("<INPUT type='text' id='d_disease' size='30'></INPUT>");
+      detailed_disease_select_div.empty().append("Type:").append(disease_input);
+    } else {
+      var detailed_disease_select = $("<SELECT id='" + detailed_disease_select_id + "'>");
+
+      var possible_detailed_diseases = possible_diseases[disease_choice]
+      detailed_disease_select.append($("<OPTION></OPTION>"));
+      for (var i=0;i<possible_detailed_diseases.length; i++) {
+        var detailed_disease = possible_detailed_diseases[i]["name"];
+        detailed_disease_select.append($("<OPTION>" + detailed_disease + "</OPTION>"));
+      }
+      detailed_disease_select_div.empty().append("Type:").append(detailed_disease_select);
+    }
+  });
+  disease_select_div.append("<br/>").append(label).append(disease_select).append(detailed_disease_select_div);
+
+  return disease_select_div;
+}
 function click_add_disease_button(event) {
   var d = event.data.diseases;
   add_disease(d)
@@ -647,7 +670,16 @@ function action_update_disease(dialog, person_id, data, current_diseases) {
   if (!data['demographics']) {
     data['demographics'] = {};
   }
+
+  if($("#d_alive_flag").val() == "No") {
+    data["status"] = {};
+    data["status"]["deceased"] = true;
+    console.log(data);
+}
+
+  console.log($("#d_detailed_death_select").val());
   // Now we have to refresh the card.
+  $(".fhh_card[person_id=" + person_id + "]").card({"view":"complex"});
   $(".fhh_card[person_id=" + person_id + "]").card("display_element");
 }
 
@@ -678,6 +710,7 @@ function action_update_race(dialog, person_id, data) {
   data['demographics']['ethnicities'] = ethnicities;
 
   // Now we have to refresh the card.
+  $(".fhh_card[person_id=" + person_id + "]").card({"view":"complex"});
   $(".fhh_card[person_id=" + person_id + "]").card("display_element");
 }
 
@@ -724,20 +757,46 @@ function action_update_stats(dialog, person_id, data) {
   var birthdate = dialog.find("#d_birthdate").val();
   var estimated_age = dialog.find("#d_estimated_age").val();
 
-  if (age_type && age_type == 'Age') {
+  if (age_type && age_type == 'age') {
     data['demographics']['age'] = age;
     delete data['demographics']['birthdate'];
     delete data['demographics']['estimated_age'];
-  } else if (age_type && age_type == 'Birthdate') {
+  } else if (age_type && age_type == 'date') {
     delete data['demographics']['age'];
     data['demographics']['birthdate'] = birthdate;
     delete data['demographics']['estimated_age'];
-  } else if (age_type && age_type == 'Est. Age'){
+  } else if (age_type && age_type == 'est_age'){
     delete data['demographics']['age'];
     delete data['demographics']['birthdate'];
     data['demographics']['estimated_age'] = estimated_age;
   }
   // Now we have to refresh the card.
+  $(".fhh_card[person_id=" + person_id + "]").card({"view":"complex"});
   $(".fhh_card[person_id=" + person_id + "]").card("display_element");
 
+}
+
+// Important general function for creating the dialogs
+
+function build_dialog(fn, data, person_id, additonal=null) {
+  var d = $("<div></div>");
+  d.dialog({
+    modal:true,
+    position: {my:"center top", at:"center top"},
+    buttons: [
+      {
+        text: "Cancel", click: function() {
+          $( this ).dialog( "close" );
+          d.remove();
+        }
+      }, {
+        text: "Submit", click: function() {
+          fn(d, person_id, data, additonal);
+          $( this ).dialog( "close" );
+          d.remove();
+        }
+      }
+    ]
+  });
+  return d;
 }
