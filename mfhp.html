@@ -1,0 +1,76 @@
+<HTML>
+<HEAD>
+  <TITLE> My Family Health Portrait </TITLE>
+  <link rel="icon" type="image/x-icon" href="source/images/favicon.ico" >
+
+  <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js" ></script>
+  <script src="source/js/test_widgets.js"></script>
+  <script src="source/js/fhh_card.js"></script>
+
+  <link rel="stylesheet" href="source/css/fhh.css">
+  <link rel="stylesheet" href="source/css/test.css">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+
+  <link rel="stylesheet" type="text/css" href="source/css/mfhp.css" >
+</HEAD>
+<BODY>
+  <DIV class='main_container'>
+    <DIV class='banner'>
+      <DIV id='log'><IMG src='source/images/banner_left.jpeg'></DIV>
+      <DIV><IMG src='source/images/banner_right.png'></DIV>
+    </DIV>
+    <DIV class='help_row'>
+      <DIV class='bubble help' onclick='alert("Help Coming Soon");'> Get Help for this page </DIV>
+    </DIV>
+    <h1 class='title'>My Family Health History</h1>
+    <DIV class='button_area'>
+      <DIV class='column'>
+        <DIV class='section'>
+          Check your risk for certain common diseases in your family <br/>&nbsp;&nbsp;&nbsp;
+          <DIV class='option'>
+            <DIV class='bubble action' style='background-color: rgb(218, 69, 11);'
+                  onclick='alert("Risk Coming Soon");'> Check Risks </DIV>
+            - Check your Familial Risk </DIV>
+        </DIV>
+        <DIV class='section'>
+          Manage Your Data <br/>&nbsp;
+          <DIV class='option'><DIV class='bubble' id='clear'> Start Family History </DIV> - Start a new Family History (Note: Will reset all data) </DIV>
+          <DIV class='option'><DIV class='bubble' id='save'> Save to Browser </DIV> - Save Locally </DIV>
+          <DIV class='option'><DIV class='bubble' id='export'> Export to File </DIV> - Save to a File you manage</DIV>
+          <DIV class='option'><DIV class='bubble' id='load'> Load From Browser </DIV> - Load Previously Saved Data</DIV>
+          <DIV class='option'><DIV class='bubble' id='import_from_file'> Load From File </DIV> - Load from a File you manage</DIV>
+          <DIV class='option'><DIV class='bubble disabled' onclick='alert("Share Data Coming Soon");'> Share Data for Relative </DIV> - Export the Data for a Family Member</DIV>
+        </DIV>
+      </DIV>
+      <DIV class='column'>
+        <DIV class='section'>
+          View and Print <br/>&nbsp;
+          <DIV class='option'><DIV class='bubble disabled' onclick='alert("Show Pedigree Coming Soon");'> Show Pedigree </DIV> - Show a Pedigree (Family Tree) of your Family </DIV>
+          <DIV class='option'><DIV class='bubble disabled' onclick='alert("Show Disease Table Coming Soon");'> Show Table </DIV> - Show all diseases for your family in a table</DIV>
+        </DIV>
+        <DIV class='section'>
+          Edit your Family and Health Histories<br/>&nbsp;
+          <DIV class='option'><DIV class='bubble' id='add_relative'> Add New Family Member </DIV> - Add a new member of your Family </DIV>
+          <DIV class='option'><DIV class='bubble' id='remove_relative'> Remove Family Member </DIV> - Remove a member from your Family</DIV>
+          <DIV class='option'><DIV class='bubble' id='expand_all'> Expand All </DIV> - Expand All Relative's Cards</DIV>
+          <DIV class='option'><DIV class='bubble' id='collapse_all'> Collapse All </DIV> -  Collapse All Relative's Cards</DIV>
+        </DIV>
+      </DIV>
+    </DIV>
+    <br><hr>
+    <UL>
+      <LI>To expand a card, click on the title</LI>
+      <LI>To collapse a card, click on the title again</LI>
+      <LI>To edit a card, click on the lock and then the value you wish to edit</LI>
+    </UL>
+    <hr><br>
+
+    <input type="file" id="import_file" style="display:none"/>
+
+    <DIV id="fhh_data" class="fhh_family"></DIV>
+
+
+  </DIV
+</BODY>
+</HTML>
